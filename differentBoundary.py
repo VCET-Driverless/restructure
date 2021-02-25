@@ -173,10 +173,13 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 angle_a = chcone.steer( (sum(angle_limit))//limit_frames )
                 st_ang = 2.115*(sum(angle_limit))//limit_frames
                 print( st_ang )
+
+                # send 'RATE' number of signels per second
                 if(time.time() - prev_time_my >= MS):
                     prev_time_my = time.time()
                     if(ARDUINO_CONNECTED):
                         s.write(str(st_ang).encode())
+
                 # Prevents Arduino buffer overlfow,   
                 if(steering != angle_a):
                     if(ARDUINO_CONNECTED):
@@ -190,7 +193,11 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 if args.out_filename is not None:
                     video.write(image)
                 if not args.dont_show:
+                    cv2. namedWindow("Inference") 
+                    cv2. moveWindow("Inference", 1000,30)
+                    image = cv2.resize(image, (2*chcone.img_dim[0], 2*chcone.img_dim[0]))
                     cv2.imshow('Inference', image)
+                    top_image = cv2.resize(top_image, (2*chcone.img_dim[0], 2*chcone.img_dim[1]))
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
                     break

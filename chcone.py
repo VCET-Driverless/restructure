@@ -22,24 +22,18 @@ r = range(26,90)
 
 path = "http://192.168.43.156:4747/video"
 
-# True -> blue, orrange
-# False -> orange, blue
-
 # inv map output-image size
 img_dim = (416, 285) # (w, h) = (x, y)
 
 # sampeling speed
 BAUD_RATE = 115200
 
-# intel camera 
-#pt = [(0,225), (-1500,500), (600,225), (2100,500)]
-
-# Laptop camera 
+# camera 
 pt_in = [(0   , 100),
          (-600, 416),
          (416 , 100), 
          (1016, 416)]
-#pt_out = [(0,0), (0,416), (416,0), (416,416)]
+
 pt_out = [(0         , 0         ),
           (0         , img_dim[1]),
           (img_dim[0], 0         ), 
@@ -87,21 +81,6 @@ def steer(angle):
         return '7'
     elif( angle in j ):
         return '8'
-    
-    
-    '''if( angle in m ):
-        return '0'
-    elif( angle in n ):
-        return '1'
-    elif( angle in o or angle in p):
-        return '2'
-    elif( angle in q):
-        return '3'
-    elif( angle in r):
-        return '4'
-    return '2'
-    else:
-        print("OUT OF ANGLE!!!")'''
 
 
 def angle(p1, p2):
@@ -456,14 +435,14 @@ def pathplan_different_boundary(blue, orange, invert):
          
     elif( len(left_box) == 0 and len(right_box) != 0 ):
         for i in range(len(right_box)):
-            print( 'test1' )
+            #print( 'test1' )
             x, y = right_box[i]
             x = x - mid_c
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
-            print( 'test2' )
+            #print( 'test2' )
             x, y = left_box[i]
             x = x + mid_c
             lines.append( (int(x), int(y)) )
