@@ -24,7 +24,6 @@ path = "http://192.168.43.156:4747/video"
 
 # True -> blue, orrange
 # False -> orange, blue
-BOUNDARY_INVERT = True
 
 # inv map output-image size
 img_dim = (416, 285) # (w, h) = (x, y)
@@ -401,7 +400,7 @@ def get_inv_coor_different_boundary(detections):
 
     return blue[::-1], orange[::-1]
 
-def pathplan_different_boundary(blue, orange):
+def pathplan_different_boundary(blue, orange, invert):
     """
     Separates top view coordinates as left and right boundary
     Also uses prior steering angle 
@@ -415,11 +414,13 @@ def pathplan_different_boundary(blue, orange):
     left_count = 5
     right_count = 5
 
-    if BOUNDARY_INVERT:
-        left_box, right_box = blue, orange
+    if invert:
+        left_box, right_box = blue.copy(), orange.copy()
+        #print(left_box==blue, right_box==orange, "if")
     else:
-        left_box, right_box = orange, blue
-    
+        left_box, right_box = orange.copy(), blue.copy()
+        #print(left_box==blue, right_box==orange, "else")
+    # print(len(left_box), len(right_box))
     #############################################################################
     left_box.sort(reverse = True)
     right_box.sort(reverse = True)
@@ -455,14 +456,14 @@ def pathplan_different_boundary(blue, orange):
          
     elif( len(left_box) == 0 and len(right_box) != 0 ):
         for i in range(len(right_box)):
-            #print( 'test1' )
+            print( 'test1' )
             x, y = right_box[i]
             x = x - mid_c
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
-            #print( 'test2' )
+            print( 'test2' )
             x, y = left_box[i]
             x = x + mid_c
             lines.append( (int(x), int(y)) )

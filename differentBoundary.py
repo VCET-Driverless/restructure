@@ -14,6 +14,7 @@ P = 2
 
 prev_time_my = time.time()
 
+BOUNDARY_INVERT = None
 DANGER = 150
 MAX_CONELESS_FRAMES = 30
 ARDUINO_CONNECTED = False
@@ -50,6 +51,8 @@ def parser():
                         help="path to data file")
     parser.add_argument("--thresh", type=float, default=.25,
                         help="remove detections with confidence below this value")
+    parser.add_argument("--boundary", type=int, default=1,
+                        help="0->boundary has different color \n 1->boundary has mix colors")
     return parser.parse_args()
 
 
@@ -145,10 +148,11 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 ###############################################
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
-                if chcone.BOUNDARY_INVERT:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange)
+                if args.boundary == 0:
+                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, BOUNDARY_INVERT)
                 else:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(orange, blue)
+                    mybox = blue + orange
+                    left_box, right_box, lines = chcone.pathplan(mybox, steering)
                 top_image = chcone.pathbana(left_box, right_box, lines, top_image)
 
                 # stop the car if no cones found for *MAX_CONELESS_FRAMES* frames
@@ -208,6 +212,8 @@ if __name__ == '__main__':
     top_view_orange_coordinates_queue = Queue(maxsize=1)
 
     args = parser()
+    if args.boundary == 0:
+        BOUNDARY_INVERT = input("enter bl or br") == "bl"
     check_arguments_errors(args)
     network, class_names, class_colors = darknet.load_network(
             args.config_file,
