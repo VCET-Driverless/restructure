@@ -6,15 +6,15 @@ This file communicates directly to actuating hardware for testing purpose
 import serial
 
 # sampeling speed
-BAUD_RATE = 115200
+from chcone import BAUD_RATE
 
 # initializing which serial port to connect
 try:
-	print("Connected to : /dev/ttyACM0")
 	s=serial.Serial('/dev/ttyACM0',BAUD_RATE)
+	print("Connected to : /dev/ttyACM0")
 except:
-	print("Connected to : /dev/ttyACM1")
 	s=serial.Serial('/dev/ttyACM1',BAUD_RATE)
+	print("Connected to : /dev/ttyACM1")
 
 # reads char from user and sends to hardware control (Arduino)
 # each character is mapped to an action (See Arduino's code)
