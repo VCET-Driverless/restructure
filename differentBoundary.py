@@ -10,9 +10,11 @@ from queue import Queue
 import chcone
 import math
 import serial
-from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P
+from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, 
+                      MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
 import dataLog
 import datetime
+from json import dump
 
 prev_time_my = time.time()
 
@@ -32,7 +34,7 @@ if(ARDUINO_CONNECTED):
 
 def parser():
     parser = argparse.ArgumentParser(description="YOLO Object Detection")
-    parser.add_argument("--input", type=str, default=6,
+    parser.add_argument("--input", type=str, default=CAM_PATH,
                         help="video source. If empty, uses webcam 0 stream")
     parser.add_argument("--out_filename", type=str, default="",
                         help="inference video name. Not saved if empty")
@@ -134,8 +136,11 @@ def drawing(frame_queue, detections_queue, fps_queue):
     steering = '4'
     limit_frames = 5
     angle_limit = [0]*limit_frames
+    frame_count = 0
 
     f = dataLog.give_file()
+    DATA = [log_constants()]
+    log_data = []
 
     try:
         while cap.isOpened():
@@ -148,8 +153,6 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
-
-                f.write(str(datetime.datetime.now()) + " " + str(blue+orange) + "\n")
 
                 if args.boundary == 0:
                     left_box, right_box, lines = chcone.pathplan_different_boundary(blue, 
@@ -192,6 +195,19 @@ def drawing(frame_queue, detections_queue, fps_queue):
                         pass
                     steering = angle_a
                     print( 'updated' , angle_a)
+
+                # data logger
+                frame_data = {
+                        "time_stamp":datetime.datetime.now().astimezone().isoformat(),
+                        "frame_count":frame_count,
+                        "steering":st_ang,
+                        "left_box":left_box,
+                        "right_box":right_box,
+                        "lines":lines
+                    }
+                log_data.append(frame_data)
+                frame_count += 1
+
                 ###############################################
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 top_image = cv2.cvtColor(top_image, cv2.COLOR_BGR2RGB)
@@ -211,12 +227,20 @@ def drawing(frame_queue, detections_queue, fps_queue):
         cap.release()
         video.release()
         cv2.destroyAllWindows()
+        DATA.append( {
+                "log_data" : log_data
+            } )
+        dump(DATA, f, indent=4)
         f.close()
     except:  
         print("Exception How???????????????????????????????????????????????")  
         cap.release()
         video.release()
         cv2.destroyAllWindows()
+        DATA.append( {
+                "log_data" : log_data
+            } )
+        dump(DATA, f, indent=4)
         f.close()
 
 

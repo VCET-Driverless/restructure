@@ -1,17 +1,15 @@
 import cv2
 import numpy as np
 
-# Independent
-path = "http://192.168.43.156:4747/video"
+# Dynamic constants
+CAM_PATH = 6 # "http://192.168.43.156:4747/video"
 
-TOP_VIEW_IMAGE_DIMESNION = (416, 285) # inv map output-image size (w, h) = (x, y)
+TESTER = "sanket"
 
-BAUD_RATE = 115200 # sampeling speed
+WHICH_SYSTEM = "sanket"
 
-FRONT_VIEW_POINTS = [(0   , 100),# camera 
-					 (-600, 416),
-         			 (416 , 100), 
-         			 (1016, 416)]
+# Independent constants
+BAUD_RATE = 115200 # sampeling speed 
 
 CAR_BELOW_Y = 25 # y coordinate of car below max y coordinate
 
@@ -27,7 +25,14 @@ ARDUINO_CONNECTED = False
 
 RATE = 1
 
-# Dependent
+TOP_VIEW_IMAGE_DIMESNION = (416, 285) # inv map output-image size (w, h) = (x, y)
+
+FRONT_VIEW_POINTS = [(0   , 100),# camera 
+					 (-600, 416),
+         			 (416 , 100), 
+         			 (1016, 416)]
+
+# Dependent constants
 TOP_VIEW_POINTS = [(0         				   , 0         				    ),
           		   (0         				   , TOP_VIEW_IMAGE_DIMESNION[1]),
           		   (TOP_VIEW_IMAGE_DIMESNION[0], 0         				    ), 
@@ -38,3 +43,22 @@ M = cv2.getPerspectiveTransform( np.float32(FRONT_VIEW_POINTS), np.float32(TOP_V
 TOP_VIEW_CAR_COORDINATE = (TOP_VIEW_IMAGE_DIMESNION[0]//2, TOP_VIEW_IMAGE_DIMESNION[1] + CAR_BELOW_Y) # car coordinates on image
 
 MS = 1/RATE
+
+def log_constants():
+	return {
+		"log_constants" : {
+			"CAM_PATH" : CAM_PATH,  
+			"BAUD_RATE" : BAUD_RATE, 
+			"CAR_BELOW_Y" : CAR_BELOW_Y,
+			"LIMIT_CONE" : LIMIT_CONE,
+			"MIDPOINT_ONE_BOUNDARY" : MIDPOINT_ONE_BOUNDARY,
+			"P" : P,
+			"MAX_CONELESS_FRAMES" : MAX_CONELESS_FRAMES,
+			"ARDUINO_CONNECTED" : ARDUINO_CONNECTED,
+			"RATE" : RATE, 
+			"TESTER" : TESTER,
+			"WHICH_SYSTEM" : WHICH_SYSTEM,
+			"TOP_VIEW_IMAGE_DIMESNION" : TOP_VIEW_IMAGE_DIMESNION,
+			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS
+		}
+	} 
