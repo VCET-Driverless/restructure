@@ -11,6 +11,8 @@ import chcone
 import math
 import serial
 from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P
+import dataLog
+import datetime
 
 prev_time_my = time.time()
 
@@ -132,6 +134,9 @@ def drawing(frame_queue, detections_queue, fps_queue):
     steering = '4'
     limit_frames = 5
     angle_limit = [0]*limit_frames
+
+    f = dataLog.give_file()
+
     try:
         while cap.isOpened():
             frame_resized = frame_queue.get()
@@ -143,6 +148,9 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
+
+                f.write(str(datetime.datetime.now()) + " " + str(blue+orange) + "\n")
+
                 if args.boundary == 0:
                     left_box, right_box, lines = chcone.pathplan_different_boundary(blue, 
                                                                                     orange, 
@@ -200,11 +208,16 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
                     break
+        cap.release()
+        video.release()
+        cv2.destroyAllWindows()
+        f.close()
     except:  
         print("Exception How???????????????????????????????????????????????")  
         cap.release()
         video.release()
         cv2.destroyAllWindows()
+        f.close()
 
 
 if __name__ == '__main__':
