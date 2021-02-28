@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import math
-from constants import M, LIMIT_CONE, mid_c, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
 
 a = range(-75,-26)#
 b = range(-26,-19)#7
@@ -192,14 +192,14 @@ def pathplan(mybox, str_ang):
         for i in range(len(right_box)):
             #print( 'test1' )
             x, y = right_box[i]
-            x = x - mid_c
+            x = x - MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
             #print( 'test2' )
             x, y = left_box[i]
-            x = x + mid_c
+            x = x + MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) != 0 ):
@@ -404,14 +404,14 @@ def pathplan_different_boundary(blue, orange, invert):
         for i in range(len(right_box)):
             #print( 'test1' )
             x, y = right_box[i]
-            x = x - mid_c
+            x = x - MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
             #print( 'test2' )
             x, y = left_box[i]
-            x = x + mid_c
+            x = x + MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) != 0 ):

@@ -17,7 +17,7 @@ CAR_BELOW_Y = 25 # y coordinate of car below max y coordinate
 
 LIMIT_CONE = 100 # threshold after which detections won't be considered -> 'y' coordinate
 
-mid_c = 100 # when one side is empty of cones, this variable is used as offset 
+MIDPOINT_ONE_BOUNDARY = 100 # one side is empty of cones, this is used as offset X coordinate
 
 P = 2.115
 
@@ -28,12 +28,12 @@ ARDUINO_CONNECTED = False
 RATE = 1
 
 # Dependent
-TOP_VIEW_POINTS = [(0         				  , 0         				   ),
-          		   (0         				  , TOP_VIEW_IMAGE_DIMESNION[1]),
-          		   (TOP_VIEW_IMAGE_DIMESNION[0], 0         				   ), 
+TOP_VIEW_POINTS = [(0         				   , 0         				    ),
+          		   (0         				   , TOP_VIEW_IMAGE_DIMESNION[1]),
+          		   (TOP_VIEW_IMAGE_DIMESNION[0], 0         				    ), 
           		   (TOP_VIEW_IMAGE_DIMESNION[0], TOP_VIEW_IMAGE_DIMESNION[1])]
 
-M = cv2.getPerspectiveTransform( np.float32(pt_in), np.float32(pt_out) )
+M = cv2.getPerspectiveTransform( np.float32(FRONT_VIEW_POINTS), np.float32(TOP_VIEW_POINTS) )
 
 TOP_VIEW_CAR_COORDINATE = (TOP_VIEW_IMAGE_DIMESNION[0]//2, TOP_VIEW_IMAGE_DIMESNION[1] + CAR_BELOW_Y) # car coordinates on image
 
