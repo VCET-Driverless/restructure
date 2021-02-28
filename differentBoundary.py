@@ -10,25 +10,20 @@ from queue import Queue
 import chcone
 import math
 import serial
-P = 2
+from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P
 
 prev_time_my = time.time()
 
 BOUNDARY_INVERT = None
-DANGER = 150
-MAX_CONELESS_FRAMES = 30
-ARDUINO_CONNECTED = False
-RATE = 1
-MS = 1/RATE
 
 if(ARDUINO_CONNECTED):
     try:
-        s=serial.Serial('/dev/ttyACM0',chcone.BAUD_RATE)
+        s=serial.Serial('/dev/ttyACM0',BAUD_RATE)
         print("Connecting to : /dev/ttyACM0")
     except:
         try:
             print("failed...")
-            s=serial.Serial('/dev/ttyACM1',chcone.BAUD_RATE)
+            s=serial.Serial('/dev/ttyACM1',BAUD_RATE)
             print("Connecting to : /dev/ttyACM1")
         except:
             print("failed... give port premission")
@@ -144,12 +139,14 @@ def drawing(frame_queue, detections_queue, fps_queue):
             fps = fps_queue.get()
             if frame_resized is not None:
                 image = darknet.draw_boxes(detections, frame_resized, class_colors)
-                top_image = top_view_frame_queue.get()
                 ###############################################
+                top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
                 if args.boundary == 0:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, BOUNDARY_INVERT)
+                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, 
+                                                                                    orange, 
+                                                                                    BOUNDARY_INVERT)
                 else:
                     mybox = blue + orange
                     left_box, right_box, lines = chcone.pathplan(mybox, steering)
@@ -171,7 +168,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 angle_limit.append(angle)
                 angle_limit.pop(0)
                 angle_a = chcone.steer( (sum(angle_limit))//limit_frames )
-                st_ang = 2.115*(sum(angle_limit))//limit_frames
+                st_ang = P*(sum(angle_limit))//limit_frames
                 print( st_ang )
 
                 # send 'RATE' number of signels per second
@@ -195,9 +192,11 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 if not args.dont_show:
                     cv2. namedWindow("Inference") 
                     cv2. moveWindow("Inference", 1000,30)
-                    image = cv2.resize(image, (2*chcone.img_dim[0], 2*chcone.img_dim[0]))
+                    image = cv2.resize(image, (2*TOP_VIEW_IMAGE_DIMESNION[0],
+                                               2*TOP_VIEW_IMAGE_DIMESNION[0]))
                     cv2.imshow('Inference', image)
-                    top_image = cv2.resize(top_image, (2*chcone.img_dim[0], 2*chcone.img_dim[1]))
+                    top_image = cv2.resize(top_image, (2*TOP_VIEW_IMAGE_DIMESNION[0],
+                                                       2*TOP_VIEW_IMAGE_DIMESNION[1]))
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
                     break
@@ -220,7 +219,7 @@ if __name__ == '__main__':
 
     args = parser()
     if args.boundary == 0:
-        BOUNDARY_INVERT = input("enter bl or br") == "bl"
+        BOUNDARY_INVERT = input("enter bl or br: ") == "bl"
     check_arguments_errors(args)
     network, class_names, class_colors = darknet.load_network(
             args.config_file,
