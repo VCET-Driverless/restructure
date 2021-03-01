@@ -21,9 +21,11 @@ def give_file():
 	while os.path.isfile(day_folder + "/" +"test" + str(test_count) + ".json"):
 		test_count = test_count + 1
 
-	f = open(day_folder + "/" + "test" + str(test_count) + ".json", "w+")
+	log_file_name = day_folder + "/" + "test" + str(test_count)	
+	
+	f = open(log_file_name + ".json", "w+")
 
-	return f 
+	return f, log_file_name
 
 test_script = True
 
@@ -32,8 +34,8 @@ if test_script:
 
 	DATA = [log_constants()]
 	log_data = []
-	
-	for _ in range(100):
+
+	for _ in range(10):
 		frame_data = {
 				"time_stamp":datetime.datetime.now().astimezone().isoformat(),
 				"frame_count":_,

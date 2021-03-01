@@ -128,8 +128,13 @@ def inference(darknet_image_queue, detections_queue, fps_queue):
 
 # draw bound box in image
 def drawing(frame_queue, detections_queue, fps_queue):
+
+    f, log_file_name = dataLog.give_file()
+    DATA = [log_constants()]
+    log_data = []
+
     random.seed(3)  # deterministic bbox colors
-    video = set_saved_video(cap, args.out_filename, (width, height))
+    video = set_saved_video(cap, log_file_name+".mp4", (width, height))
     global prev_time_my
 
     counter = 0
@@ -137,10 +142,6 @@ def drawing(frame_queue, detections_queue, fps_queue):
     limit_frames = 5
     angle_limit = [0]*limit_frames
     frame_count = 0
-
-    f = dataLog.give_file()
-    DATA = [log_constants()]
-    log_data = []
 
     try:
         while cap.isOpened():
@@ -211,8 +212,12 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 ###############################################
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 top_image = cv2.cvtColor(top_image, cv2.COLOR_BGR2RGB)
-                if args.out_filename is not None:
-                    video.write(image)
+                
+                ##############################
+                #if args.out_filename is not None:
+                video.write(image)
+                ##############################
+
                 if not args.dont_show:
                     cv2. namedWindow("Inference") 
                     cv2. moveWindow("Inference", 1000,30)
