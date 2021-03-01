@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import math
+from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, 
+                      TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
 
 a = range(-75,-26)#
 b = range(-26,-19)#7
@@ -18,41 +20,7 @@ n = range(-26,-12)
 o = range(-12,0)
 p = range(0,12)
 q = range(12,26)
-r = range(26,90)
-
-path = "http://192.168.43.156:4747/video"
-
-# inv map output-image size
-img_dim = (416, 285) # (w, h) = (x, y)
-
-# sampeling speed
-BAUD_RATE = 115200
-
-# camera 
-pt_in = [(0   , 100),
-         (-600, 416),
-         (416 , 100), 
-         (1016, 416)]
-
-pt_out = [(0         , 0         ),
-          (0         , img_dim[1]),
-          (img_dim[0], 0         ), 
-          (img_dim[0], img_dim[1])]
-
-pts1 = np.float32(pt_in)
-pts2 = np.float32(pt_out)
-M = cv2.getPerspectiveTransform(pts1,pts2)
-
-# threshold after which detections won't be considered
-# below variable represents threshold 'y' coordinate
-LIMIT_CONE = 100 
-
-# when one side is empty of cones, this variable is used as offset
-mid_c = 100
-
-# car coordinates on image
-car_coor = (img_dim[0]//2, img_dim[1]+25)
-
+r = range(26,90) 
 
 def steer(angle):
     """
@@ -80,8 +48,7 @@ def steer(angle):
     elif( angle in i ):
         return '7'
     elif( angle in j ):
-        return '8'
-
+        return '8' 
 
 def angle(p1, p2):
     """
@@ -107,7 +74,7 @@ def inv_map(frame):
     :frame: front-view image
     :returns: transformation matrix and transformed image
     """
-    image = cv2.warpPerspective(frame, M, img_dim, flags=cv2.INTER_LINEAR)
+    image = cv2.warpPerspective(frame, M, TOP_VIEW_IMAGE_DIMESNION, flags=cv2.INTER_LINEAR)
     #cv2.imshow('itshouldlookfine!', image)
     return image, M
 
@@ -119,7 +86,7 @@ def line_x(direction_coor, cone_coor):
     :cone_coor:      coordinate of cone
     :returns:        position of cone w.r.t., virtual mid-line
     """
-    car_x, car_y = car_coor
+    car_x, car_y = TOP_VIEW_CAR_COORDINATE
     cone_x, cone_y = cone_coor
     direction_x, direction_y = direction_coor
 
@@ -166,7 +133,7 @@ def pathplan(mybox, str_ang):
                     right_count = right_count - 1
 
         elif( str_ang == '0' or str_ang == '1' or str_ang == '2'):
-            if( not line_x( (img_dim[0]*ratio, 0), (x, y))):
+            if( not line_x( (TOP_VIEW_IMAGE_DIMESNION[0]*ratio, 0), (x, y))):
                 if(left_count > 0):
                     left_box.append(mybox[i])
                     left_count = left_count - 1
@@ -176,7 +143,8 @@ def pathplan(mybox, str_ang):
                     right_count = right_count - 1
 
         elif( str_ang == '6' or str_ang == '7' or str_ang == '8' ):
-            if( line_x( ( img_dim[0] - img_dim[0]*ratio, 0), (x, y) ) ):
+            if( line_x( ( TOP_VIEW_IMAGE_DIMESNION[0] - 
+                          TOP_VIEW_IMAGE_DIMESNION[0] * ratio, 0 ), (x, y) ) ):
                 if(right_count > 0):
                     right_box.append(mybox[i])
                     right_count = right_count - 1
@@ -215,7 +183,7 @@ def pathplan(mybox, str_ang):
     #############################################################################
     
     lines = []
-    lines.append(car_coor)
+    lines.append(TOP_VIEW_CAR_COORDINATE)
 
 
     if( len(left_box) == 0 and len(right_box) == 0 ):
@@ -225,14 +193,14 @@ def pathplan(mybox, str_ang):
         for i in range(len(right_box)):
             #print( 'test1' )
             x, y = right_box[i]
-            x = x - mid_c
+            x = x - MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
             #print( 'test2' )
             x, y = left_box[i]
-            x = x + mid_c
+            x = x + MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) != 0 ):
@@ -427,7 +395,7 @@ def pathplan_different_boundary(blue, orange, invert):
     #############################################################################
     
     lines = []
-    lines.append(car_coor)
+    lines.append(TOP_VIEW_CAR_COORDINATE)
 
 
     if( len(left_box) == 0 and len(right_box) == 0 ):
@@ -437,14 +405,14 @@ def pathplan_different_boundary(blue, orange, invert):
         for i in range(len(right_box)):
             #print( 'test1' )
             x, y = right_box[i]
-            x = x - mid_c
+            x = x - MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) == 0 ):
         for i in range(len(left_box)):
             #print( 'test2' )
             x, y = left_box[i]
-            x = x + mid_c
+            x = x + MIDPOINT_ONE_BOUNDARY
             lines.append( (int(x), int(y)) )
         
     elif( len(left_box) != 0 and len(right_box) != 0 ):
@@ -472,3 +440,24 @@ def pathplan_different_boundary(blue, orange, invert):
     #print(len(left_box), len(right_box))
     
     return left_box[::-1], right_box[::-1], lines[::-1]
+
+def bbox2points(bbox):
+    """
+    From bounding box yolo format
+    to corner points cv2 rectangle
+    """
+    x, y, w, h = bbox
+    xmin = int(round(x - (w / 2)))
+    xmax = int(round(x + (w / 2)))
+    ymin = int(round(y - (h / 2)))
+    ymax = int(round(y + (h / 2)))
+    return (xmin, ymin, xmax, ymax)
+
+def get_boxes(detections):
+    bounding_box = []
+    for label, confidence, bbox in detections:
+        temp = bbox2points(bbox)
+        bounding_box.append( (label, 
+                              int(confidence * 10000), 
+                              temp) )
+    return bounding_box

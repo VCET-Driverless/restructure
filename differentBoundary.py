@@ -10,32 +10,31 @@ from queue import Queue
 import chcone
 import math
 import serial
-P = 2
+from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, 
+                      MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
+import dataLog
+import datetime
+from json import dump
 
 prev_time_my = time.time()
 
 BOUNDARY_INVERT = None
-DANGER = 150
-MAX_CONELESS_FRAMES = 30
-ARDUINO_CONNECTED = False
-RATE = 1
-MS = 1/RATE
 
 if(ARDUINO_CONNECTED):
     try:
-        s=serial.Serial('/dev/ttyACM0',chcone.BAUD_RATE)
+        s=serial.Serial('/dev/ttyACM0',BAUD_RATE)
         print("Connecting to : /dev/ttyACM0")
     except:
         try:
             print("failed...")
-            s=serial.Serial('/dev/ttyACM1',chcone.BAUD_RATE)
+            s=serial.Serial('/dev/ttyACM1',BAUD_RATE)
             print("Connecting to : /dev/ttyACM1")
         except:
             print("failed... give port premission")
 
 def parser():
     parser = argparse.ArgumentParser(description="YOLO Object Detection")
-    parser.add_argument("--input", type=str, default=6,
+    parser.add_argument("--input", type=str, default=CAM_PATH,
                         help="video source. If empty, uses webcam 0 stream")
     parser.add_argument("--out_filename", type=str, default="",
                         help="inference video name. Not saved if empty")
@@ -129,14 +128,22 @@ def inference(darknet_image_queue, detections_queue, fps_queue):
 
 # draw bound box in image
 def drawing(frame_queue, detections_queue, fps_queue):
+
+    f, log_file_name = dataLog.give_file()
+    DATA = [log_constants()]
+    DATA[0]["log_constants"]["CAM_PATH"] = args.input
+    log_data = []
+
     random.seed(3)  # deterministic bbox colors
-    video = set_saved_video(cap, args.out_filename, (width, height))
+    video = set_saved_video(cap, log_file_name+".mp4", (width, height))
     global prev_time_my
 
     counter = 0
     steering = '4'
     limit_frames = 5
     angle_limit = [0]*limit_frames
+    frame_count = 0
+
     try:
         while cap.isOpened():
             frame_resized = frame_queue.get()
@@ -144,12 +151,15 @@ def drawing(frame_queue, detections_queue, fps_queue):
             fps = fps_queue.get()
             if frame_resized is not None:
                 image = darknet.draw_boxes(detections, frame_resized, class_colors)
-                top_image = top_view_frame_queue.get()
                 ###############################################
+                top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
+
                 if args.boundary == 0:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, BOUNDARY_INVERT)
+                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, 
+                                                                                    orange, 
+                                                                                    BOUNDARY_INVERT)
                 else:
                     mybox = blue + orange
                     left_box, right_box, lines = chcone.pathplan(mybox, steering)
@@ -171,7 +181,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 angle_limit.append(angle)
                 angle_limit.pop(0)
                 angle_a = chcone.steer( (sum(angle_limit))//limit_frames )
-                st_ang = 2.115*(sum(angle_limit))//limit_frames
+                st_ang = P*(sum(angle_limit))//limit_frames
                 print( st_ang )
 
                 # send 'RATE' number of signels per second
@@ -187,25 +197,55 @@ def drawing(frame_queue, detections_queue, fps_queue):
                         pass
                     steering = angle_a
                     print( 'updated' , angle_a)
+
+                # data logger
+                frame_data = {
+                        "time_stamp":datetime.datetime.now().astimezone().isoformat(),
+                        "frame_count":frame_count,
+                        "steering": int(st_ang),
+                        "detections": chcone.get_boxes(detections)
+                    }
+                log_data.append(frame_data)
+                frame_count += 1
+
                 ###############################################
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 top_image = cv2.cvtColor(top_image, cv2.COLOR_BGR2RGB)
-                if args.out_filename is not None:
-                    video.write(image)
+                
+                ##############################
+                #if args.out_filename is not None:
+                video.write(image)
+                ##############################
+
                 if not args.dont_show:
                     cv2. namedWindow("Inference") 
                     cv2. moveWindow("Inference", 1000,30)
-                    image = cv2.resize(image, (2*chcone.img_dim[0], 2*chcone.img_dim[0]))
+                    image = cv2.resize(image, (2*TOP_VIEW_IMAGE_DIMESNION[0],
+                                               2*TOP_VIEW_IMAGE_DIMESNION[0]))
                     cv2.imshow('Inference', image)
-                    top_image = cv2.resize(top_image, (2*chcone.img_dim[0], 2*chcone.img_dim[1]))
+                    top_image = cv2.resize(top_image, (2*TOP_VIEW_IMAGE_DIMESNION[0],
+                                                       2*TOP_VIEW_IMAGE_DIMESNION[1]))
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
                     break
+        cap.release()
+        video.release()
+        cv2.destroyAllWindows()
+        DATA.append( {
+                "log_data" : log_data
+            } )
+        dump(DATA, f, indent=4)
+        f.close()
     except:  
         print("Exception How???????????????????????????????????????????????")  
         cap.release()
         video.release()
         cv2.destroyAllWindows()
+        DATA.append( {
+                "log_data" : log_data
+            } )
+        dump(DATA, f, indent=4)
+        f.close()
 
 
 if __name__ == '__main__':
@@ -220,7 +260,7 @@ if __name__ == '__main__':
 
     args = parser()
     if args.boundary == 0:
-        BOUNDARY_INVERT = input("enter bl or br") == "bl"
+        BOUNDARY_INVERT = input("enter bl or br: ") == "bl"
     check_arguments_errors(args)
     network, class_names, class_colors = darknet.load_network(
             args.config_file,
