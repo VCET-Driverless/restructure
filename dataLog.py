@@ -27,18 +27,17 @@ def give_file():
 
 	return f, log_file_name
 
-test_script = True
-
-if test_script:
-	f = give_file()
+if __name__ == '__main__':
+	f, log_file_name = give_file()
 
 	DATA = [log_constants()]
+	DATA[0]["log_constants"]["CAM_PATH"] = "video.mp4"
 	log_data = []
 
-	for _ in range(10):
+	for i in range(10):
 		frame_data = {
 				"time_stamp":datetime.datetime.now().astimezone().isoformat(),
-				"frame_count":_,
+				"frame_count":i,
 				"steering":12,
                 "left_box":test_cone_coordinates,
                 "right_box":test_cone_coordinates,
@@ -49,7 +48,6 @@ if test_script:
 	DATA.append( {
 			"log_data" : log_data
 		} )
-
 	dump(DATA, f, indent=4)
 
 	f.close() 

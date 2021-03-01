@@ -131,6 +131,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
 
     f, log_file_name = dataLog.give_file()
     DATA = [log_constants()]
+    DATA[0]["log_constants"]["CAM_PATH"] = args.input
     log_data = []
 
     random.seed(3)  # deterministic bbox colors
@@ -201,10 +202,8 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 frame_data = {
                         "time_stamp":datetime.datetime.now().astimezone().isoformat(),
                         "frame_count":frame_count,
-                        "steering":st_ang,
-                        "left_box":left_box,
-                        "right_box":right_box,
-                        "lines":lines
+                        "steering": int(st_ang),
+                        "detections": chcone.get_boxes(detections)
                     }
                 log_data.append(frame_data)
                 frame_count += 1

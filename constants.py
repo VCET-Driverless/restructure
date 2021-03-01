@@ -27,6 +27,8 @@ RATE = 1
 
 TOP_VIEW_IMAGE_DIMESNION = (416, 285) # inv map output-image size (w, h) = (x, y)
 
+FRONT_VIEW_IMAGE_DIMESNION = (416, 416) # (w, h) = (x, y)
+
 FRONT_VIEW_POINTS = [(0   , 100),# camera 
 					 (-600, 416),
          			 (416 , 100), 

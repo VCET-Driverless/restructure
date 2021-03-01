@@ -440,3 +440,24 @@ def pathplan_different_boundary(blue, orange, invert):
     #print(len(left_box), len(right_box))
     
     return left_box[::-1], right_box[::-1], lines[::-1]
+
+def bbox2points(bbox):
+    """
+    From bounding box yolo format
+    to corner points cv2 rectangle
+    """
+    x, y, w, h = bbox
+    xmin = int(round(x - (w / 2)))
+    xmax = int(round(x + (w / 2)))
+    ymin = int(round(y - (h / 2)))
+    ymax = int(round(y + (h / 2)))
+    return (xmin, ymin, xmax, ymax)
+
+def get_boxes(detections):
+    bounding_box = []
+    for label, confidence, bbox in detections:
+        temp = bbox2points(bbox)
+        bounding_box.append( (label, 
+                              int(confidence * 10000), 
+                              temp) )
+    return bounding_box
