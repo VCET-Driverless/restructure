@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import math
-from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, 
-                      TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
 
 a = range(-75,-26)#
 b = range(-26,-19)#7
@@ -458,6 +457,6 @@ def get_boxes(detections):
     for label, confidence, bbox in detections:
         temp = bbox2points(bbox)
         bounding_box.append( (label, 
-                              int(confidence * 10000), 
+                              confidence, 
                               temp) )
     return bounding_box
