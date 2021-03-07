@@ -24,7 +24,6 @@ r = range(26,90)
 def steer(angle):
     """
     Maps angle range to integer for sending to Arduino
-
     :angle:   steering angle
     :returns: mapped integer
     """
@@ -52,7 +51,6 @@ def steer(angle):
 def angle(p1, p2):
     """
     Computes angle w.r.t., car
-
     :returns: angle w.r.t, car
     """
     x, y = p1
@@ -69,7 +67,6 @@ def angle(p1, p2):
 def inv_map(frame):
     """
     Transforms given image to top-view image (used for visual debug)
-
     :frame: front-view image
     :returns: transformation matrix and transformed image
     """
@@ -80,7 +77,6 @@ def inv_map(frame):
 def line_x(direction_coor, cone_coor):
     """
     Finds the position of cone w.r.t., line formed by given point and car coordinates
-
     :direction_coor: coordinate to form the line
     :cone_coor:      coordinate of cone
     :returns:        position of cone w.r.t., virtual mid-line
@@ -107,7 +103,6 @@ def pathplan(mybox, str_ang):
     """
     Separates top view coordinates as left and right boundary
     Also uses prior steering angle 
-
     :mybox:   list having all detections as top view coordinates
     :str_ang: steering angle of previous time-step/frame
     :returns: 3 lists having top view coordinates of left, right and midpoint 
@@ -154,7 +149,7 @@ def pathplan(mybox, str_ang):
                     left_count = left_count - 1
 
 
-	
+    
     #############################################################################
     left_box.sort(reverse = True)
     right_box.sort(reverse = True)
@@ -217,7 +212,7 @@ def pathplan(mybox, str_ang):
                 x, y = tuple(np.add((right_box[i]), (left_box[i])))
                 x = x//2
                 y = y//2
-                #cv2.circle(transf,(int(x), int(y)), 5, (255,0,255), -1) 	# Filled
+                #cv2.circle(transf,(int(x), int(y)), 5, (255,0,255), -1)    # Filled
                 lines.append( (int(x), int(y)) )
 
         left_box = left_box[::-1].copy()
@@ -231,7 +226,6 @@ def pathplan(mybox, str_ang):
 def pathbana(left_box, right_box, lines, inv_image):
     """
     JUST DRAWING function > draws left, right and midpoint top-view coordinates
-
     :mybox:     list with all coordinates (top-view)
     :left_box:  list with left side coordinates (top-view)
     :right_box: list with right side coordinates (top-view)
@@ -253,7 +247,7 @@ def pathbana(left_box, right_box, lines, inv_image):
 
     for i in range(len(right_box)-1):
         cv2.line(inv_image, right_box[i], right_box[i+1], (0,0,0), 3)
-	
+    
     #print( lines[0], lines[1] , angle(lines[0], lines[1]) )
 
     return inv_image
@@ -261,7 +255,6 @@ def pathbana(left_box, right_box, lines, inv_image):
 def convertBack(x, y, w, h):
     """
     Converts detections output into x-y coordinates
-
     :x, y: position of bounding box
     :w, h: height and width of bounding box
     """
@@ -275,7 +268,6 @@ def convertBack(x, y, w, h):
 def get_inv_coor(detections):
     """
     Converts front-view coordinates (of cone) to top-view coordinates
-
     :detections: front-view coordinates
     :M: transformation matrix
     :returns: top-view coordinates of cones and person
@@ -296,7 +288,7 @@ def get_inv_coor(detections):
         a = np.array([[( (xmax+xmin)//2 ), (ymax//1)]], dtype='float32')
         a = np.array([a])
         pointsOut = cv2.perspectiveTransform(a, M)
-        box = pointsOut[0][0][0], pointsOut[0][0][1]
+        box = int(pointsOut[0][0][0]), int(pointsOut[0][0][1])
         #print(detection[0])
         #if(detection[0].decode() == 'person'):
         #    person.append(box)
@@ -311,7 +303,6 @@ def get_inv_coor(detections):
 def get_inv_coor_different_boundary(detections):
     """
     Converts front-view coordinates (of cone) to top-view coordinates
-
     :detections: front-view coordinates
     :M: transformation matrix
     :returns: top-view coordinates of cones and person
@@ -333,7 +324,7 @@ def get_inv_coor_different_boundary(detections):
         a = np.array([[( (xmax+xmin)//2 ), (ymax//1)]], dtype='float32')
         a = np.array([a])
         pointsOut = cv2.perspectiveTransform(a, M)
-        box = pointsOut[0][0][0], pointsOut[0][0][1]
+        box = int(pointsOut[0][0][0]), int(pointsOut[0][0][1])
         #print(detection[0])
         if(detection[0] == 'blue'):
             blue.append(box)
@@ -350,7 +341,6 @@ def pathplan_different_boundary(blue, orange, invert):
     """
     Separates top view coordinates as left and right boundary
     Also uses prior steering angle 
-
     :mybox:   list having all detections as top view coordinates
     :str_ang: steering angle of previous time-step/frame
     :returns: 3 lists having top view coordinates of left, right and midpoint 
