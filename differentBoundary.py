@@ -10,8 +10,7 @@ from queue import Queue
 import chcone
 import math
 import serial
-from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, 
-                      MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
+from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
 import dataLog
 import datetime
 from json import dump
@@ -143,6 +142,10 @@ def drawing(frame_queue, detections_queue, fps_queue):
     limit_frames = 5
     angle_limit = [0]*limit_frames
     frame_count = 0
+    serial_writen_now = False
+    serial_data = None
+    if(ARDUINO_CONNECTED):
+        s.write(str('a').encode())
 
     try:
         while cap.isOpened():
@@ -170,7 +173,9 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     counter = counter + 1
                     if counter == MAX_CONELESS_FRAMES:
                         if(ARDUINO_CONNECTED):
-                            s.write(str.encode('c'))
+                            serial_data = 'c'
+                            serial_writen_now = True
+                            s.write(str(serial_data).encode())
                         counter = 0
 
                 # encode signal for steering control
@@ -188,7 +193,9 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 if(time.time() - prev_time_my >= MS):
                     prev_time_my = time.time()
                     if(ARDUINO_CONNECTED):
-                        s.write(str(st_ang).encode())
+                        serial_data = st_ang
+                        serial_writen_now = True
+                        s.write(str(serial_data).encode())
 
                 # Prevents Arduino buffer overlfow,   
                 if(steering != angle_a):
@@ -203,10 +210,16 @@ def drawing(frame_queue, detections_queue, fps_queue):
                         "time_stamp":datetime.datetime.now().astimezone().isoformat(),
                         "frame_count":frame_count,
                         "steering": int(st_ang),
-                        "detections": chcone.get_boxes(detections)
+                        "serial_writen_now":serial_writen_now,
+                        "serial_data":serial_data,
+                        "detections": chcone.get_boxes(detections),
+                        "left_box":left_box,
+                        "right_box":right_box,
+                        "lines":lines
                     }
                 log_data.append(frame_data)
                 frame_count += 1
+                serial_writen_now = False
 
                 ###############################################
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -228,15 +241,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
                     break
-        cap.release()
-        video.release()
-        cv2.destroyAllWindows()
-        DATA.append( {
-                "log_data" : log_data
-            } )
-        dump(DATA, f, indent=4)
-        f.close()
-    except:  
+    finally:  
         print("Exception How???????????????????????????????????????????????")  
         cap.release()
         video.release()
