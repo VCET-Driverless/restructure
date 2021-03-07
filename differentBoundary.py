@@ -240,9 +240,12 @@ def drawing(frame_queue, detections_queue, fps_queue):
                                                        2*TOP_VIEW_IMAGE_DIMESNION[1]))
                     cv2.imshow('top_view', top_image)
                 if cv2.waitKey(fps) == 27:
+                    if ARDUINO_CONNECTED:
+                        s.write(str('c').encode())
                     break
     finally:  
-        print("Exception How???????????????????????????????????????????????")  
+        if ARDUINO_CONNECTED:
+            s.write(str('c').encode())
         cap.release()
         video.release()
         cv2.destroyAllWindows()
