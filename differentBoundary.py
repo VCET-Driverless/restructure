@@ -256,6 +256,25 @@ def drawing(frame_queue, detections_queue, fps_queue):
         f.close()
 
 
+#########Pure Pursuit###############
+from chcone import *
+class VehicleState:
+    def __init__(self, x=0.0, y=0.0):
+        self.x = x
+        self.y = y
+def PP():
+    if len(lines) == 0:
+        pass      
+    elif len(lines) >= midpint_ld:
+        w_x, w_y = intersect(lines, Lfc)
+        angle, alpha = pure_pursuit_control(state, w_x, w_y)
+        return angle
+    else:
+        angle, alpha = pure_pursuit_control(
+            state, lines[len(lines)-1][0], lines[len(lines)-1][1])
+        return angle
+ #####################################
+      
 if __name__ == '__main__':
     frame_queue = Queue()
     darknet_image_queue = Queue(maxsize=1)
