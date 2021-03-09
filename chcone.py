@@ -450,3 +450,55 @@ def get_boxes(detections):
                               confidence, 
                               temp) )
     return bounding_box
+
+
+
+##################### Pure Pursuit ########################
+CX, CY = 208, 310
+midpint_ld = 3
+k = 0.1  # looking distance coefficient
+Lfc = R = 180.0  # lookahead distance
+Kp = 2.15  # Speed P controller coefficient
+dt = 0.1  # Time interval, unit:s
+L = 65  # Vehicle wheelbase, unit:pixel
+
+def intersect(lines, Lfc):
+    r = Lfc
+    ind = 0
+    got_a_pt = False
+    for i in lines:
+        if((i[0] - CX)**2 + (i[1] - CY)**2 - r**2 > 0):
+            ind = lines.index(i)
+            got_a_pt = True
+            break
+    # find a b c
+    if got_a_pt:
+        try:
+            m = (lines[ind][1]-CY - lines[ind-1][1]+CY) / (lines[ind][0]-CX - lines[ind-1][0]+CX)
+        except:
+            m = math.inf
+        a = m
+        b = -1
+        c = -1 * m*(lines[ind-1][0]-CX) + lines[ind-1][1]-CY
+
+        x0 = -1 * a*c/(a*a+b*b)
+        y0 = -b*c/(a*a+b*b)
+        d = r*r - c*c/(a*a+b*b)
+        mult = math.sqrt(d / (a*a+b*b))
+        ax = x0 + b * mult
+        bx = x0 - b * mult
+        ay = y0 - a * mult
+        by = y0 + a * mult
+
+
+        if(ay+CY < CY):
+            return (ax+CX, ay+CY)
+        else:
+            return (bx+CX, by+CY)
+    else:
+        return lines[-1]
+    
+    def pure_pursuit_control(state, tx, ty):
+        alpha = (math.pi/2) + math.atan2(ty - CY - L, tx - CX)
+        delta = math.atan2(2.0 * L * math.sin(alpha), Lfc)
+        return delta, alpha
