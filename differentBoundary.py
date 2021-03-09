@@ -179,9 +179,8 @@ def drawing(frame_queue, detections_queue, fps_queue):
                         counter = 0
 
                 # encode signal for steering control
-                angle = chcone.angle(lines[0], lines[1])
+                angle, top_image = PP(lines, top_image)
                 angle = math.floor(angle)
-
                 # Takes average turning/steering angle of *limit_frames* frames
                 angle_limit.append(angle)
                 angle_limit.pop(0)
@@ -258,21 +257,19 @@ def drawing(frame_queue, detections_queue, fps_queue):
 
 #########Pure Pursuit###############
 from chcone import *
-class VehicleState:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
-def PP():
-    if len(lines) == 0:
-        pass      
-    elif len(lines) >= midpint_ld:
-        w_x, w_y = intersect(lines, Lfc)
-        angle, alpha = pure_pursuit_control(state, w_x, w_y)
-        return angle
-    else:
-        angle, alpha = pure_pursuit_control(
-            state, lines[len(lines)-1][0], lines[len(lines)-1][1])
-        return angle
+
+def PP(lines, frame):
+    alpha = 0
+    delta = 0
+    w_x, w_y = intersect(lines, Lfc)
+    delta, alpha = pure_pursuit_control( w_x, w_y)
+    cv2.line(frame, (CX, CY), (w_x, w_y), (125, 125, 255), 3)
+    cv2.circle(frame, (CX, CY), int(Lfc), (0,255,255), 3)
+    cv2.circle(frame, (w_x, w_y), 5, (0,255,255), 3)
+
+    delta = delta*180/math.pi
+
+    return delta, frame
  #####################################
       
 if __name__ == '__main__':
