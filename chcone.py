@@ -456,7 +456,7 @@ def get_boxes(detections):
 ##################### Pure Pursuit ########################
 CX, CY = 208, 310
 midpint_ld = 3
-k = 0.1  # looking distance coefficient
+k = 0.1  # looahead distance coefficient
 Lfc = R = 180.0  # lookahead distance
 Kp = 2.15  # Speed P controller coefficient
 dt = 0.1  # Time interval, unit:s
@@ -498,7 +498,9 @@ def intersect(lines, Lfc):
     else:
         return lines[-1]
     
-    def pure_pursuit_control(state, tx, ty):
+    def pure_pursuit_control(tx, ty):
         alpha = (math.pi/2) + math.atan2(ty - CY - L, tx - CX)
         delta = math.atan2(2.0 * L * math.sin(alpha), Lfc)
         return delta, alpha
+
+##################################################################################
