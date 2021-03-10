@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import math
 from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+from constants import Lfc,CX,CY,L
+ 
 
 a = range(-75,-26)#
 b = range(-26,-19)#7
@@ -454,13 +456,8 @@ def get_boxes(detections):
 
 
 ##################### Pure Pursuit ########################
-CX, CY = 208, 310
-midpint_ld = 3
-k = 0.1  # looahead distance coefficient
-Lfc = R = 180.0  # lookahead distance
-Kp = 2.15  # Speed P controller coefficient
-dt = 0.1  # Time interval, unit:s
-L = 65  # Vehicle wheelbase, unit:pixel
+#midpoint_ld = 3
+#dt = 0.1  # Time interval, unit:s
 
 def intersect(lines, Lfc):
     r = Lfc
@@ -498,9 +495,20 @@ def intersect(lines, Lfc):
     else:
         return lines[-1]
     
-    def pure_pursuit_control(tx, ty):
-        alpha = (math.pi/2) + math.atan2(ty - CY - L, tx - CX)
-        delta = math.atan2(2.0 * L * math.sin(alpha), Lfc)
-        return delta, alpha
+def pure_pursuit_control(tx, ty):
+    alpha = (math.pi/2) + math.atan2(ty - CY - L, tx - CX)
+    delta = math.atan2(2.0 * L * math.sin(alpha), Lfc)
+    return delta, alpha
+
+def PP(lines, frame):
+    alpha = 0
+    delta = 0
+    w_x, w_y = intersect(lines, Lfc)
+    delta, alpha = pure_pursuit_control( w_x, w_y)
+    cv2.line(frame, (CX, CY), (w_x, w_y), (125, 125, 255), 3)
+    cv2.circle(frame, (CX, CY), int(Lfc), (0,255,255), 3)
+    cv2.circle(frame, (w_x, w_y), 5, (0,255,255), 3)
+    delta = delta*180/math.pi
+    return delta, frame
 
 ##################################################################################

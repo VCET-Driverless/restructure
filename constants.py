@@ -68,9 +68,9 @@ def log_constants():
 			"TESTER" : TESTER,
 			"WHICH_SYSTEM" : WHICH_SYSTEM,
 			"TOP_VIEW_IMAGE_DIMESNION" : TOP_VIEW_IMAGE_DIMESNION,
-			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS
+			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS,
+			"Lookahead Distance":Lfc
 		}
 	} 
 
 
-#test local-->remote

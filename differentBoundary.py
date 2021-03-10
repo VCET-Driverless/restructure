@@ -51,6 +51,8 @@ def parser():
                         help="remove detections with confidence below this value")
     parser.add_argument("--boundary", type=int, default=1,
                         help="0->boundary has different color \n 1->boundary has mix colors")
+    parser.add_argument("--controller", type=int, default=0,
+                        help="0->old controller \n 1->new controller")
     return parser.parse_args()
 
 
@@ -178,9 +180,16 @@ def drawing(frame_queue, detections_queue, fps_queue):
                             s.write(str(serial_data).encode())
                         counter = 0
 
-                # encode signal for steering control
-                angle, top_image = PP(lines, top_image)
-                angle = math.floor(angle)
+                if(args.controller==0):
+                    # encode signal for steering control(old controller)   
+                    angle = chcone.angle(lines[0], lines[1])
+                    angle = math.floor(angle)
+                elif(args.controller==1)
+                    # encode signal for steering control(new controller)
+                    angle, top_image = chcone.PP(lines, top_image)
+                    angle = math.floor(angle)
+
+                log_data.append({"pure_pursuit_angle":angle})
                 # Takes average turning/steering angle of *limit_frames* frames
                 angle_limit.append(angle)
                 angle_limit.pop(0)
@@ -254,23 +263,6 @@ def drawing(frame_queue, detections_queue, fps_queue):
         dump(DATA, f, indent=4)
         f.close()
 
-
-#########Pure Pursuit###############
-from chcone import *
-
-def PP(lines, frame):
-    alpha = 0
-    delta = 0
-    w_x, w_y = intersect(lines, Lfc)
-    delta, alpha = pure_pursuit_control( w_x, w_y)
-    cv2.line(frame, (CX, CY), (w_x, w_y), (125, 125, 255), 3)
-    cv2.circle(frame, (CX, CY), int(Lfc), (0,255,255), 3)
-    cv2.circle(frame, (w_x, w_y), 5, (0,255,255), 3)
-
-    delta = delta*180/math.pi
-
-    return delta, frame
- #####################################
       
 if __name__ == '__main__':
     frame_queue = Queue()
