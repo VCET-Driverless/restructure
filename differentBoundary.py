@@ -52,7 +52,7 @@ def parser():
     parser.add_argument("--boundary", type=int, default=1,
                         help="0->boundary has different color \n 1->boundary has mix colors")
     parser.add_argument("--controller", type=int, default=0,
-                        help="0->old controller \n 1->new controller")
+                        help="0->old controller \n 1->pure pursuit controller")
     return parser.parse_args()
 
 

@@ -69,7 +69,7 @@ def log_constants():
 			"WHICH_SYSTEM" : WHICH_SYSTEM,
 			"TOP_VIEW_IMAGE_DIMESNION" : TOP_VIEW_IMAGE_DIMESNION,
 			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS,
-			"Lookahead Distance":Lfc
+			"Lookahead_Distance" : Lfc
 		}
 	} 
 
