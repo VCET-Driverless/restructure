@@ -130,7 +130,11 @@ def drawing(frame_queue, detections_queue, fps_queue):
 
     f, log_file_name = dataLog.give_file()
     DATA = [log_constants()]
+    
+    # changes in log constants
     DATA[0]["log_constants"]["CAM_PATH"] = args.input
+    DATA[0]["log_constants"]["BOUNDARY"] = args.boundary
+    
     log_data = []
 
     random.seed(3)  # deterministic bbox colors
