@@ -71,3 +71,6 @@ def log_constants():
 			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS
 		}
 	} 
+
+
+#test local-->remote
