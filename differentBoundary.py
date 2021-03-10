@@ -184,12 +184,12 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     # encode signal for steering control(old controller)   
                     angle = chcone.angle(lines[0], lines[1])
                     angle = math.floor(angle)
-                elif(args.controller==1)
+                elif(args.controller==1):
                     # encode signal for steering control(new controller)
                     angle, top_image = chcone.PP(lines, top_image)
                     angle = math.floor(angle)
 
-                log_data.append({"pure_pursuit_angle":angle})
+                
                 # Takes average turning/steering angle of *limit_frames* frames
                 angle_limit.append(angle)
                 angle_limit.pop(0)
