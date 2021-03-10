@@ -220,6 +220,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 log_data.append(frame_data)
                 frame_count += 1
                 serial_writen_now = False
+                serial_data = None
 
                 ###############################################
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
