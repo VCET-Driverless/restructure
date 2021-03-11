@@ -47,7 +47,6 @@ TOP_VIEW_CAR_COORDINATE = (TOP_VIEW_IMAGE_DIMESNION[0]//2, TOP_VIEW_IMAGE_DIMESN
 MS = 1/RATE
 
 # Pure pursuit constants
-CX, CY = 208, 310 # pixel co-ordinates of the car in the frame
 k = 0.1  # lookahead distance coefficient
 Lfc = R = 180.0  # lookahead distance
 Kp = 2.15  # Speed P controller coefficient

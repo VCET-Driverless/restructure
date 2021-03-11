@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import math
 from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
-from constants import Lfc,CX,CY,L
+from constants import Lfc,L
  
-
+CX,CY  = TOP_VIEW_CAR_COORDINATE
 a = range(-75,-26)#
 b = range(-26,-19)#7
 c = range(-19,-13)#6
