@@ -1,3 +1,4 @@
+//sudo chmod a+rw /dev/ttyACM0
 #define DIR_PIN          3
 #define STEP_PIN         2       // MOTOR PINS
 #define ENABLE_PIN       4
