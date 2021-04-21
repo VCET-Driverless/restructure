@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import math
 from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
-
+from constants import Lfc,L
+ 
+CX,CY  = TOP_VIEW_CAR_COORDINATE
 a = range(-75,-26)#
 b = range(-26,-19)#7
 c = range(-19,-13)#6
@@ -450,3 +452,63 @@ def get_boxes(detections):
                               confidence, 
                               temp) )
     return bounding_box
+
+
+
+##################### Pure Pursuit ########################
+#midpoint_ld = 3
+#dt = 0.1  # Time interval, unit:s
+
+def intersect(lines, Lfc):
+    r = Lfc
+    ind = 0
+    got_a_pt = False
+    for i in lines:
+        if((i[0] - CX)**2 + (i[1] - CY)**2 - r**2 > 0):
+            ind = lines.index(i)
+            got_a_pt = True
+            break
+    # find a b c
+    if got_a_pt:
+        try:
+            m = (lines[ind][1]-CY - lines[ind-1][1]+CY) / (lines[ind][0]-CX - lines[ind-1][0]+CX)
+        except:
+            m = math.inf
+        a = m
+        b = -1
+        c = -1 * m*(lines[ind-1][0]-CX) + lines[ind-1][1]-CY
+
+        x0 = -1 * a*c/(a*a+b*b)
+        y0 = -b*c/(a*a+b*b)
+        d = r*r - c*c/(a*a+b*b)
+        mult = math.sqrt(d / (a*a+b*b))
+        ax = x0 + b * mult
+        bx = x0 - b * mult
+        ay = y0 - a * mult
+        by = y0 + a * mult
+
+
+        if(ay+CY < CY):
+            return (ax+CX, ay+CY)
+        else:
+            return (bx+CX, by+CY)
+    else:
+        return lines[-1]
+    
+def pure_pursuit_control(tx, ty):
+    alpha = (math.pi/2) + math.atan2(ty - CY - L, tx - CX)
+    delta = math.atan2(2.0 * L * math.sin(alpha), Lfc)
+    return delta, alpha
+
+def PP(lines, frame):
+    alpha = 0
+    delta = 0
+    w_x, w_y = intersect(lines, Lfc)
+    delta, alpha = pure_pursuit_control( w_x, w_y)
+    cv2.line(frame, (CX, CY), (w_x, w_y), (125, 125, 255), 3)
+    cv2.circle(frame, (CX, CY), int(Lfc), (0,255,255), 3)
+    cv2.circle(frame, (w_x, w_y), 5, (0,255,255), 3)
+    delta = delta*180/math.pi
+    return delta, frame
+
+##################################################################################

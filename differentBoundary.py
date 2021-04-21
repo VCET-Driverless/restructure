@@ -51,6 +51,8 @@ def parser():
                         help="remove detections with confidence below this value")
     parser.add_argument("--boundary", type=int, default=1,
                         help="0->boundary has different color \n 1->boundary has mix colors")
+    parser.add_argument("--controller", type=int, default=0,
+                        help="0->old controller \n 1->pure pursuit controller")
     return parser.parse_args()
 
 
@@ -182,10 +184,16 @@ def drawing(frame_queue, detections_queue, fps_queue):
                             s.write(str(serial_data).encode())
                         counter = 0
 
-                # encode signal for steering control
-                angle = chcone.angle(lines[0], lines[1])
-                angle = math.floor(angle)
+                if(args.controller==0):
+                    # encode signal for steering control(old controller)   
+                    angle = chcone.angle(lines[0], lines[1])
+                    angle = math.floor(angle)
+                elif(args.controller==1):
+                    # encode signal for steering control(new controller)
+                    angle, top_image = chcone.PP(lines, top_image)
+                    angle = math.floor(angle)
 
+                
                 # Takes average turning/steering angle of *limit_frames* frames
                 angle_limit.append(angle)
                 angle_limit.pop(0)
@@ -260,7 +268,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
         dump(DATA, f, indent=4)
         f.close()
 
-
+      
 if __name__ == '__main__':
     frame_queue = Queue()
     darknet_image_queue = Queue(maxsize=1)

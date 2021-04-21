@@ -46,6 +46,12 @@ TOP_VIEW_CAR_COORDINATE = (TOP_VIEW_IMAGE_DIMESNION[0]//2, TOP_VIEW_IMAGE_DIMESN
 
 MS = 1/RATE
 
+# Pure pursuit constants
+k = 0.1  # lookahead distance coefficient
+Lfc = R = 180.0  # lookahead distance
+Kp = 2.15  # Speed P controller coefficient
+L = 65  # Vehicle wheelbase, unit:pixel
+
 def log_constants():
 	return {
 		"log_constants" : {
@@ -61,6 +67,9 @@ def log_constants():
 			"TESTER" : TESTER,
 			"WHICH_SYSTEM" : WHICH_SYSTEM,
 			"TOP_VIEW_IMAGE_DIMESNION" : TOP_VIEW_IMAGE_DIMESNION,
-			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS
+			"FRONT_VIEW_POINTS" : FRONT_VIEW_POINTS,
+			"Lookahead_Distance" : Lfc
 		}
 	} 
+
+
