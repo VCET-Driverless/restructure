@@ -7,7 +7,7 @@
 # import argparse
 # from threading import Thread, enumerate
 # from queue import Queue
-import chcone
+import legacy.chcone
 # import math
 # import serial
 # from constants import (
@@ -24,12 +24,23 @@ import chcone
 # import datetime
 # from json import dump
 
+def boundary_separation(darknet_image_queue, detections_queue, fps_queue):
+    detections = detections_queue.get()
+    ###############################################
+    mybox = top_view_coordinates_queue.get()
+    left_box = list()
+    right_box = list()
+    """
+    further lines sparates boundary
+    """
+    return left_box, right_box
+    ###############################################
+
 def path_plan(darknet_image_queue, detections_queue, fps_queue):
     while cap.isOpened():
         detections = detections_queue.get()
         ###############################################
-        blue, orange = chcone.get_inv_coor_different_boundary(detections)
-        top_view_blue_coordinates_queue.put(blue)
-        top_view_orange_coordinates_queue.put(orange)
+        left_box, right_box = boundary_separation()
+        lines = list()
         ###############################################
     cap.release()
