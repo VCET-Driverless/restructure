@@ -10,7 +10,16 @@ from queue import Queue
 import chcone
 import math
 import serial
-from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
+from constants import (
+    ARDUINO_CONNECTED,
+    BAUD_RATE,
+    TOP_VIEW_IMAGE_DIMESNION,
+    MAX_CONELESS_FRAMES,
+    MS,
+    P,
+    CAM_PATH,
+    log_constants
+)
 import dataLog
 import datetime
 from json import dump

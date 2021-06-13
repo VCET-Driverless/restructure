@@ -1,0 +1,3 @@
+[submodule "ext/darknet"]
+	path = ext/darknet
+	url = https://github.com/AlexeyAB/darknet.git
