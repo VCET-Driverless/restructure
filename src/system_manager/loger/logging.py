@@ -1,0 +1,3 @@
+
+def log():
+    pass

@@ -3,7 +3,7 @@ import random
 import os
 import cv2
 import time
-import darknet
+from ext.darknet import darknet
 import argparse
 from threading import Thread, enumerate
 from queue import Queue
