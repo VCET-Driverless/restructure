@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 import math
-from constants import M, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
-from constants import Lfc,L
+from constants import LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+
 
 class path_plan:
     def __init__(self):
@@ -11,7 +11,7 @@ class path_plan:
         self.right_box=[]
         self.lines=[]
         #top_image=[]
-        CX,CY  = TOP_VIEW_CAR_COORDINATE
+        
         
     def pathbana(self,left_box, right_box, lines, inv_image):
         """
@@ -265,3 +265,114 @@ class path_plan:
         else:
             # False indicates left side
             return False
+
+    def pathplan_different_boundary(self,blue, orange, invert):
+        """
+        Separates top view coordinates as left and right boundary
+        Also uses prior steering angle 
+        :mybox:   list having all detections as top view coordinates
+        :str_ang: steering angle of previous time-step/frame
+        :returns: 3 lists having top view coordinates of left, right and midpoint 
+        """
+        left_box = []
+        right_box = []
+        
+
+        if invert:
+            left_box, right_box = blue.copy(), orange.copy()
+            #print(left_box==blue, right_box==orange, "if")
+        else:
+            left_box, right_box = orange.copy(), blue.copy()
+            #print(left_box==blue, right_box==orange, "else")
+        # print(len(left_box), len(right_box))
+        #############################################################################
+        left_box.sort(reverse = True)
+        right_box.sort(reverse = True)
+
+        left_box =  sorted(left_box, key=lambda k:(k[1], k[0])).copy()
+        right_box = sorted(right_box, key=lambda l:(l[1], l[0])).copy()
+        '''left_box.sort()
+        right_box.sort()'''
+        #############################################################################
+        ############################### path planning ###############################
+        #############################################################################
+        try:
+            if(left_box[-1][1] < LIMIT_CONE):
+                left_box.clear()
+        except:
+            #print('Left Exception in pathplan function.............')
+            pass
+                
+        try:
+            if(right_box[-1][1] < LIMIT_CONE):
+                right_box.clear()
+        except:
+            pass
+            #print('Right Exception in pathplan function.............')
+        #############################################################################
+        
+        lines = []
+        lines.append(TOP_VIEW_CAR_COORDINATE)
+
+
+        if( len(left_box) == 0 and len(right_box) == 0 ):
+            lines.append((208,350))
+            
+        elif( len(left_box) == 0 and len(right_box) != 0 ):
+            for i in range(len(right_box)):
+                #print( 'test1' )
+                x, y = right_box[i]
+                x = x - MIDPOINT_ONE_BOUNDARY
+                lines.append( (int(x), int(y)) )
+            
+        elif( len(left_box) != 0 and len(right_box) == 0 ):
+            for i in range(len(left_box)):
+                #print( 'test2' )
+                x, y = left_box[i]
+                x = x + MIDPOINT_ONE_BOUNDARY
+                lines.append( (int(x), int(y)) )
+            
+        elif( len(left_box) != 0 and len(right_box) != 0 ):
+
+            small_len  = 0
+            left_box = left_box[::-1].copy()
+            right_box = right_box[::-1].copy()
+            if(len(left_box) > len(right_box)):
+                small_len = len(right_box)
+            else:
+                small_len = len(left_box)
+            
+            for i in reversed(range(small_len)):
+                    #print( 'test3' )
+                    x, y = tuple(np.add((right_box[i]), (left_box[i])))
+                    x = x//2
+                    y = y//2
+                    #cv2.circle(transf,(int(x), int(y)), 5, (255,0,255), -1)    # Filled
+                    lines.append( (int(x), int(y)) )
+
+            left_box = left_box[::-1].copy()
+            right_box = right_box[::-1].copy()
+
+        lines = sorted(lines, key=lambda m:(m[1], m[0])).copy()
+        #print(len(left_box), len(right_box))
+        
+        return left_box[::-1], right_box[::-1], lines[::-1]
+
+    def path_plan_driver(self,frame_queue,top_view_blue_coordinates_queue,top_view_orange_coordinates_queue,args):
+        while True:
+            frame_resized = frame_queue.get()
+            detections = detections_queue.get()
+            fps = fps_queue.get()
+            if frame_resized is not None:
+                image = darknet.draw_boxes(detections, frame_resized, class_colors)
+                ###############################################
+                top_image = top_view_frame_queue.get()
+                blue = top_view_blue_coordinates_queue.get()
+                orange = top_view_orange_coordinates_queue.get()
+
+                if args.boundary == 0:
+                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, BOUNDARY_INVERT)
+                else:
+                    mybox = blue + orange
+                    left_box, right_box, lines = chcone.pathplan(mybox, steering)
+                top_image = chcone.pathbana(left_box, right_box, lines, top_image)
