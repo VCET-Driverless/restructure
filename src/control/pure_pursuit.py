@@ -11,25 +11,23 @@ class Pure_Pursuit:
         self.front_view_image_dimension = (416, 416)  # (w, h) = (x, y)
         self.car_below_y = 25  # y coordinate of car below max y coordinate
         self.top_view_car_coordinate = (self.top_view_image_dimension[0]//2, self.top_view_image_dimension[1]+self.car_below_y)
-        self.got_a_pt = False
-        self.alpha = 0
-        self.delta = 0
-        self.slope = 0.0
-        self.wheelbase = 65
         self.cx, self.cy = self.top_view_car_coordinate
+        
+##################### Pure Pursuit ########################        
 
     def intersect(self, path_lines):
         r = self.look_ahead_dist
+
         self.index = 0
-        self.got_a_pt = False
+        got_a_pt = False
         cx, cy = self.top_view_car_coordinate
         for i in path_lines:
             if ((i[0] - cx) ** 2 + (i[1] - cy) ** 2 - r ** 2 > 0):
                 self.index = path_lines.index(i)
-                self.got_a_pt = True
+                got_a_pt = True
                 break
-
-            if self.got_a_pt:
+           #Find a b c
+            if got_a_pt:
                 try:
                     slope = (path_lines[self.index][1] - cy - path_lines[self.index - 1][1] + cy) / (path_lines[self.index][0] - cx - path_lines[self.index - 1][0] + cx)
                 except:
@@ -55,17 +53,18 @@ class Pure_Pursuit:
                 return path_lines[-1]
 
     def pure_pursuit_control(self, tx,ty):
-        self.alpha = (math.pi / 2) + math.atan2(ty - self.cy - self.wheelbase, tx - self.cx)
-        self.delta = math.atan2(2.0 * self.wheelbase * math.sin(self.alpha), self.look_ahead_dist)
-        return self.delta,self.alpha
+        wheelbase = 65
+        alpha = (math.pi / 2) + math.atan2(ty - self.cy - wheelbase, tx - self.cx)
+        delta = math.atan2(2.0 * wheelbase * math.sin(alpha), self.look_ahead_dist)
+        return delta,alpha
 
     def pure_pursuit(self,path_lines,frame):
-        self.alpha = 0
-        self.delta = 0
+        alpha = 0
+        delta = 0
         w_x , w_y = self.intersect(path_lines)
-        self.alpha,self.delta = self.pure_pursuit_control(w_x,w_y)
+        alpha,delta = self.pure_pursuit_control(w_x,w_y)
         cv2.line(frame, (self.cx, self.cy), (w_x, w_y), (125, 125, 255), 3)
         cv2.circle(frame, (self.cx, self.cy), int(self.look_ahead_dist), (0, 255, 255), 3)
         cv2.circle(frame, (w_x, w_y), 5, (0, 255, 255), 3)
-        self.delta = self.delta*180/math.pi
-        return self.delta,frame
+        delta = delta*180/math.pi
+        return delta,frame
