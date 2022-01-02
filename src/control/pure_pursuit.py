@@ -5,7 +5,6 @@ import cv2
 class Pure_Pursuit:
     def __init__(self):
         self.look_ahead_dist = 180.0
-        self.index = 0
         self.path_lines = []
         self.top_view_image_dimension = (416, 285)
         self.front_view_image_dimension = (416, 416)  # (w, h) = (x, y)
@@ -18,23 +17,23 @@ class Pure_Pursuit:
     def intersect(self, path_lines):
         r = self.look_ahead_dist
 
-        self.index = 0
+        index = 0
         got_a_pt = False
         cx, cy = self.top_view_car_coordinate
         for i in path_lines:
             if ((i[0] - cx) ** 2 + (i[1] - cy) ** 2 - r ** 2 > 0):
-                self.index = path_lines.index(i)
+                index = path_lines.index(i)
                 got_a_pt = True
                 break
            #Find a b c
             if got_a_pt:
                 try:
-                    slope = (path_lines[self.index][1] - cy - path_lines[self.index - 1][1] + cy) / (path_lines[self.index][0] - cx - path_lines[self.index - 1][0] + cx)
+                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
                 except:
                     slope = math.inf
                 a = slope
                 b = -1
-                c = -1 * slope * (path_lines[self.index - 1][0] - cx) + path_lines[self.index - 1][1] - cy
+                c = -1 * slope * (path_lines[index - 1][0] - cx) + path_lines[index - 1][1] - cy
 
                 x0 = -1 * a * c / (a * a + b * b)
                 y0 = -b * c / (a * a + b * b)
