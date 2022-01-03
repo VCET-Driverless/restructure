@@ -11,9 +11,9 @@ class Pure_Pursuit:
         self.car_below_y = 25  # y coordinate of car below max y coordinate
         self.top_view_car_coordinate = (self.top_view_image_dimension[0]//2, self.top_view_image_dimension[1]+self.car_below_y)
         self.cx, self.cy = self.top_view_car_coordinate
+        self.wheelbase = 65
         
-##################### Pure Pursuit ########################        
-
+        
     def intersect(self, path_lines):
         r = self.look_ahead_dist
 
@@ -52,9 +52,9 @@ class Pure_Pursuit:
                 return path_lines[-1]
 
     def pure_pursuit_control(self, tx,ty):
-        wheelbase = 65
-        alpha = (math.pi / 2) + math.atan2(ty - self.cy - wheelbase, tx - self.cx)
-        delta = math.atan2(2.0 * wheelbase * math.sin(alpha), self.look_ahead_dist)
+        self.wheelbase = 65
+        alpha = (math.pi / 2) + math.atan2(ty - self.cy - self.wheelbase, tx - self.cx)
+        delta = math.atan2(2.0 * self.wheelbase * math.sin(alpha), self.look_ahead_dist)
         return delta,alpha
 
     def pure_pursuit(self,path_lines,frame):
