@@ -27,7 +27,7 @@ class Pure_Pursuit:
            #Find a b c
             if got_a_pt:
                 try:
-                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[self.index - 1][0] + cx)
+                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
                 except:
                     slope = math.inf
                 a = slope
