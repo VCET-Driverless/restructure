@@ -12,8 +12,7 @@ class Pure_Pursuit:
         self.top_view_car_coordinate = (self.top_view_image_dimension[0]//2, self.top_view_image_dimension[1]+self.car_below_y)
         self.cx, self.cy = self.top_view_car_coordinate
         self.wheelbase = 65
-        
-        
+    
     def intersect(self, path_lines):
         r = self.look_ahead_dist
 
@@ -28,7 +27,7 @@ class Pure_Pursuit:
            #Find a b c
             if got_a_pt:
                 try:
-                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
+                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[self.index - 1][0] + cx)
                 except:
                     slope = math.inf
                 a = slope
@@ -68,4 +67,29 @@ class Pure_Pursuit:
         delta = delta*180/math.pi
         return delta,frame
 
-    
+    def send_steer_angle(angle):
+      """
+       Maps angle range to integer for sending to Arduino
+      :angle:   steering angle
+      :returns: mapped integer
+      """
+      if( angle in range(-75,-26) ): #
+        return '0'
+      elif( angle in range(-26,-19) ):#7
+        return '1'
+      elif( angle in range(-19,-13) ):#6
+          return '2'
+      elif( angle in  range(-13,-7)):#6
+          return '3'
+      elif( angle in range(-7,0) ):#8
+          return '4'
+      elif( angle in range(0,7) ):
+          return '4'
+      elif( angle in range(7,13) ):
+          return '5'
+      elif( angle in range(13,19)):
+          return '6'
+      elif( angle in range(19,26) ):
+          return '7'
+      elif( angle in range(26,75)):
+        return '8' 
