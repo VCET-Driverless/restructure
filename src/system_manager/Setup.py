@@ -15,6 +15,9 @@ class Setup:
         self.cam_path=CAM_PATH
         self.log_file_name
         self.file= open()
+        self.BOUNDARY_INVERT = input("enter bl or br: ") == "bl"
+        self.baud_rate=BAUD_RATE
+        self.arduino_connected=ARDUINO_CONNECTED
         
 
     def Parser(self):
@@ -43,16 +46,16 @@ class Setup:
 
 
     def connectAurdino(self):
-        baud_rate = BAUD_RATE
-        arduino_connected= ARDUINO_CONNECTED
-        if(arduino_connected):
+        self.baud_rate = BAUD_RATE
+        self.arduino_connected= ARDUINO_CONNECTED
+        if(self.arduino_connected):
             try:
-                self.serial=serial.Serial('/dev/ttyACM0',baud_rate)
+                self.serial=serial.Serial('/dev/ttyACM0',self.baud_rate)
                 print("Connecting to : /dev/ttyACM0")
             except:
                 try:
                     print("failed...")
-                    self.serial=serial.Serial('/dev/ttyACM1',baud_rate)
+                    self.serial=serial.Serial('/dev/ttyACM1',self.baud_rate)
                     print("Connecting to : /dev/ttyACM1")
                 except:
                     print("failed... give port premission")   
@@ -121,9 +124,3 @@ class Setup:
         Setup.set_cam_input(self)
         Setup.set_saved_video(self,input_video,output_video, size) 
         Setup.give_file(self)
-        
-                    
-
-    
-       
-    
