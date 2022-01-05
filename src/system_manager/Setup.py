@@ -2,16 +2,19 @@ import argparse
 import serial
 import cv2
 import os
-
+from constants import BAUD_RATE, CAM_PATH,ARDUINO_CONNECTED
+import datetime
 
 class Setup:
 
     def __init__(self):
-        self.serial
-        self.video
-        self.parser
-        self.args
-        self.campath
+        self.serial=serial.Serial()
+        self.video=cv2.VideoWriter()
+        self.parser = argparse.ArgumentParser
+        self.args=argparse.Parser()
+        self.cam_path=CAM_PATH
+        self.log_file_name
+        self.file= open()
         
 
     def Parser(self):
@@ -40,8 +43,8 @@ class Setup:
 
 
     def connectAurdino(self):
-        baud_rate = 115200
-        arduino_connected= False
+        baud_rate = BAUD_RATE
+        arduino_connected= ARDUINO_CONNECTED
         if(arduino_connected):
             try:
                 self.serial=serial.Serial('/dev/ttyACM0',baud_rate)
@@ -73,10 +76,52 @@ class Setup:
             raise(ValueError("Invalid data file path {}".format(os.path.abspath(self.args.data_file))))
         if str2int(self.args.input) == str and not os.path.exists(self.args.input):
             raise(ValueError("Invalid video path {}".format(os.path.abspath(self.args.input))))
+            
+     def str2int(video_path):
+        """
+        argparse returns and string althout webcam uses int (0, 1 ...)
+        Cast to int if needed
+        """
+        try:
+            return int(video_path)
+        except ValueError:
+            return video_path       
 
 
     def  set_cam_input(self):
         self.campath=6            # "http://192.168.43.156:4747/video"
+        
+     def give_file(self):
+        self.log_file_name 
+        log_folder="logs"
+        test_count = 0
+        today = datetime.datetime.now()
+
+        if not os.path.isdir(log_folder):
+            os.mkdir(log_folder)
+
+        day_folder = log_folder + "/" + str(today.day) + "-" + str(today.month) + "-" + str(today.year)
+
+        if not os.path.isdir(day_folder):
+            os.mkdir(day_folder)
+
+        while os.path.isfile(day_folder + "/" +"test" + str(test_count) + ".json"):
+            test_count = test_count + 1
+
+        self.log_file_name = day_folder + "/" + "test" + str(test_count)	
+        
+        self.file = open(self.log_file_name + ".json", "w+")
+
+        return self.file, self.log_file_name
+    
+     def setup_driver(self,input_video, output_video, size,args): 
+        Setup.Parser(self)
+        Setup.connect_aurdino(self)
+        Setup.check_arguments_errors(self,args)
+        Setup.set_cam_input(self)
+        Setup.set_saved_video(self,input_video,output_video, size) 
+        Setup.give_file(self)
+        
                     
 
     
