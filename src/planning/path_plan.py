@@ -358,7 +358,7 @@ class path_plan:
         
         return left_box[::-1], right_box[::-1], lines[::-1]
 
-    def path_plan_driver(self,frame_queue,top_view_blue_coordinates_queue,top_view_orange_coordinates_queue,args):
+    def path_plan_driver(self,frame_queue,top_view_blue_coordinates_queue,top_view_orange_coordinates_queue, setup):
         while True:
             frame_resized = frame_queue.get()
             detections = detections_queue.get()
@@ -370,8 +370,8 @@ class path_plan:
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
 
-                if args.boundary == 0:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, BOUNDARY_INVERT)
+                if setup.args.boundary == 0:
+                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, setup.BOUNDARY_INVERT)
                 else:
                     mybox = blue + orange
                     left_box, right_box, lines = chcone.pathplan(mybox, steering)
