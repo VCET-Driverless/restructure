@@ -10,19 +10,19 @@ class Setup:
     def __init__(self):
         self.serial=serial.Serial()
         self.video=cv2.VideoWriter()
-        self.parser = argparse.ArgumentParser
+        self.parser = argparse.ArgumentParser(description="Setup Parser")
         self.args=argparse.Parser()
         self.cam_path=CAM_PATH
-        self.log_file_name
+        self.log_file_name=""
         self.file= open()
-        self.BOUNDARY_INVERT = input("enter bl or br: ") == "bl"
+        self.BOUNDARY_INVERT = None
         self.baud_rate=BAUD_RATE
         self.arduino_connected=ARDUINO_CONNECTED
         
 
     def Parser(self):
-        self.parser = argparse.ArgumentParser(description="YOLO Object Detection")
-        self.parser.add_argument("--input", type=str, default=self.campath,
+        
+        self.parser.add_argument("--input", type=str, default=self.cam_path,
                             help="video source. If empty, uses webcam 0 stream")
         self.parser.add_argument("--out_filename", type=str, default="",
                             help="inference video name. Not saved if empty")
@@ -42,12 +42,12 @@ class Setup:
                             help="0->boundary has different color \n 1->boundary has mix colors")
         self.parser.add_argument("--controller", type=int, default=0,
                             help="0->old controller \n 1->pure pursuit controller")
-        return self.parser.parse_args()
+        
+        self.args = self.parser.parse_args()
 
 
     def connectAurdino(self):
-        self.baud_rate = BAUD_RATE
-        self.arduino_connected= ARDUINO_CONNECTED
+        
         if(self.arduino_connected):
             try:
                 self.serial=serial.Serial('/dev/ttyACM0',self.baud_rate)
@@ -68,8 +68,8 @@ class Setup:
         return self.video
 
 
-    def check_arguments_errors(self,args):
-        self.args=args
+    def check_arguments_errors(self):
+        # self.args=args
         assert 0 < self.args.thresh < 1, "Threshold should be a float between zero and one (non-inclusive)"
         if not os.path.exists(self.args.config_file):
             raise(ValueError("Invalid config path {}".format(os.path.abspath(self.args.config_file))))
@@ -80,7 +80,7 @@ class Setup:
         if str2int(self.args.input) == str and not os.path.exists(self.args.input):
             raise(ValueError("Invalid video path {}".format(os.path.abspath(self.args.input))))
             
-     def str2int(video_path):
+     def str2int(self, video_path):
         """
         argparse returns and string althout webcam uses int (0, 1 ...)
         Cast to int if needed
@@ -91,11 +91,11 @@ class Setup:
             return video_path       
 
 
-    def  set_cam_input(self):
-        self.campath=6            # "http://192.168.43.156:4747/video"
+    def  set_cam_input(self, path):
+        self.cam_path=path            # "http://192.168.43.156:4747/video"
         
      def give_file(self):
-        self.log_file_name 
+        
         log_folder="logs"
         test_count = 0
         today = datetime.datetime.now()
@@ -114,13 +114,12 @@ class Setup:
         self.log_file_name = day_folder + "/" + "test" + str(test_count)	
         
         self.file = open(self.log_file_name + ".json", "w+")
-
-        return self.file, self.log_file_name
     
      def setup_driver(self,input_video, output_video, size,args): 
         Setup.Parser(self)
         Setup.connect_aurdino(self)
-        Setup.check_arguments_errors(self,args)
-        Setup.set_cam_input(self)
-        Setup.set_saved_video(self,input_video,output_video, size) 
+        Setup.check_arguments_errors(self)
+        Setup.set_cam_input(self, self.args.input)                                  # Take input from parser... default set to 6.
         Setup.give_file(self)
+        Setup.set_saved_video(self,input_video, self.log_file_name + ".mp4", size)  # Need to figure out how to pass input path.
+        
