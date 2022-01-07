@@ -1,6 +1,6 @@
-import numpy as np
 import math
 import cv2
+
 
 class Pure_Pursuit:
     def __init__(self):
@@ -9,10 +9,11 @@ class Pure_Pursuit:
         self.top_view_image_dimension = (416, 285)
         self.front_view_image_dimension = (416, 416)  # (w, h) = (x, y)
         self.car_below_y = 25  # y coordinate of car below max y coordinate
-        self.top_view_car_coordinate = (self.top_view_image_dimension[0]//2, self.top_view_image_dimension[1]+self.car_below_y)
+        self.top_view_car_coordinate = (
+        self.top_view_image_dimension[0] // 2, self.top_view_image_dimension[1] + self.car_below_y)
         self.cx, self.cy = self.top_view_car_coordinate
         self.wheelbase = 65
-    
+
     def intersect(self, path_lines):
         r = self.look_ahead_dist
 
@@ -24,10 +25,11 @@ class Pure_Pursuit:
                 index = path_lines.index(i)
                 got_a_pt = True
                 break
-           #Find a b c
+            # Find a b c
             if got_a_pt:
                 try:
-                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
+                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (
+                                path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
                 except:
                     slope = math.inf
                 a = slope
@@ -50,46 +52,19 @@ class Pure_Pursuit:
             else:
                 return path_lines[-1]
 
-    def pure_pursuit_control(self, tx,ty):
+    def pure_pursuit_control(self, tx, ty):
         self.wheelbase = 65
         alpha = (math.pi / 2) + math.atan2(ty - self.cy - self.wheelbase, tx - self.cx)
         delta = math.atan2(2.0 * self.wheelbase * math.sin(alpha), self.look_ahead_dist)
-        return delta,alpha
+        return delta, alpha
 
-    def pure_pursuit(self,path_lines,frame):
+    def pure_pursuit(self, path_lines, frame):
         alpha = 0
         delta = 0
-        w_x , w_y = self.intersect(path_lines)
-        alpha,delta = self.pure_pursuit_control(w_x,w_y)
+        w_x, w_y = self.intersect(path_lines)
+        alpha, delta = self.pure_pursuit_control(w_x, w_y)
         cv2.line(frame, (self.cx, self.cy), (w_x, w_y), (125, 125, 255), 3)
         cv2.circle(frame, (self.cx, self.cy), int(self.look_ahead_dist), (0, 255, 255), 3)
         cv2.circle(frame, (w_x, w_y), 5, (0, 255, 255), 3)
-        delta = delta*180/math.pi
-        return delta,frame
-
-    def send_steer_angle(angle):
-      """
-       Maps angle range to integer for sending to Arduino
-      :angle:   steering angle
-      :returns: mapped integer
-      """
-      if( angle in range(-75,-26) ): #
-        return '0'
-      elif( angle in range(-26,-19) ):#7
-        return '1'
-      elif( angle in range(-19,-13) ):#6
-          return '2'
-      elif( angle in  range(-13,-7)):#6
-          return '3'
-      elif( angle in range(-7,0) ):#8
-          return '4'
-      elif( angle in range(0,7) ):
-          return '4'
-      elif( angle in range(7,13) ):
-          return '5'
-      elif( angle in range(13,19)):
-          return '6'
-      elif( angle in range(19,26) ):
-          return '7'
-      elif( angle in range(26,75)):
-        return '8' 
+        delta = delta * 180 / math.pi
+        return delta, frame
