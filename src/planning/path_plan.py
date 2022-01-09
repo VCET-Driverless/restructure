@@ -4,7 +4,7 @@ import math
 from constants import LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
 
 
-class path_plan:
+class Path_Plan:
     def __init__(self):
         
         self.left_box=[]
@@ -101,7 +101,7 @@ class path_plan:
 
 
         
-        #############################################################################
+        
         self.left_box.sort(reverse = True)
         self.right_box.sort(reverse = True)
 
@@ -109,9 +109,7 @@ class path_plan:
         self.right_box = sorted(self.right_box, key=lambda l:(l[1], l[0])).copy()
         '''self.left_box.sort()
         self.right_box.sort()'''
-        #############################################################################
-        ############################### path planning ###############################
-        #############################################################################
+        
         try:
             if(self.left_box[-1][1] < LIMIT_CONE):
                 self.left_box.clear()
@@ -125,7 +123,7 @@ class path_plan:
         except:
             pass
             #print('Right Exception in pathplan function.............')
-        #############################################################################
+    
         
         self.lines = []
         self.lines.append(TOP_VIEW_CAR_COORDINATE)
@@ -285,7 +283,7 @@ class path_plan:
             left_box, right_box = orange.copy(), blue.copy()
             #print(left_box==blue, right_box==orange, "else")
         # print(len(left_box), len(right_box))
-        #############################################################################
+       
         left_box.sort(reverse = True)
         right_box.sort(reverse = True)
 
@@ -293,9 +291,7 @@ class path_plan:
         right_box = sorted(right_box, key=lambda l:(l[1], l[0])).copy()
         '''left_box.sort()
         right_box.sort()'''
-        #############################################################################
-        ############################### path planning ###############################
-        #############################################################################
+     
         try:
             if(left_box[-1][1] < LIMIT_CONE):
                 left_box.clear()
@@ -309,7 +305,7 @@ class path_plan:
         except:
             pass
             #print('Right Exception in pathplan function.............')
-        #############################################################################
+     
         
         lines = []
         lines.append(TOP_VIEW_CAR_COORDINATE)
@@ -362,10 +358,9 @@ class path_plan:
         while True:
             frame_resized = frame_queue.get()
             detections = detections_queue.get()
-            fps = fps_queue.get()
+           
             if frame_resized is not None:
                 image = darknet.draw_boxes(detections, frame_resized, class_colors)
-                ###############################################
                 top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
