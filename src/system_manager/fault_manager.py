@@ -1,4 +1,4 @@
-import Setup            
+import restructure.src.system_manager.setup as setup            
 #from system_manager.setup import Setup
 import Perception
 #from perception.perception import Perception
@@ -25,13 +25,13 @@ class check_fault:
     def connect_arduino_error():                            #Setup.py
         try:
             print("failed...")
-            Setup.serial=serial.Serial('/dev/ttyACM1',Setup.baud_rate)
+            setup.serial=serial.Serial('/dev/ttyACM1',setup.baud_rate)
             print("Connecting to : /dev/ttyACM1")
         except:
             print("failed... give port premission")   
 
     def different_boundary_main_error():
         Perception.cap.release()
-        Setup.video.release()
+        setup.video.release()
         cv2.destroyAllWindows()
 

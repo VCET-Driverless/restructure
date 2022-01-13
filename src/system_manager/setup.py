@@ -1,26 +1,27 @@
+
+# Library imports
 import argparse
 import serial
 import cv2
 import os
-from constants import BAUD_RATE, CAM_PATH,ARDUINO_CONNECTED
 import datetime
 
 class Setup:
 
-    def __init__(self):
-        self.serial=serial.Serial()
-        self.video=cv2.VideoWriter()
+    def __init__(self, constants):
+        self.serial = serial.Serial()
+        self.video = cv2.VideoWriter()
         self.parser = argparse.ArgumentParser(description="Setup Parser")
-        self.args=argparse.Parser()
-        self.cam_path=CAM_PATH
-        self.log_file_name=""
-        self.file= open()
+        self.args = argparse.Parser()
+        self.cam_path = constants.CAM_PATH
+        self.log_file_name = ""
+        self.file = open()
         self.BOUNDARY_INVERT = None
-        self.baud_rate=BAUD_RATE
-        self.arduino_connected=ARDUINO_CONNECTED
+        self.baud_rate = constants.BAUD_RATE
+        self.arduino_connected = constants.ARDUINO_CONNECTED
         
 
-    def Parser(self):
+    def set_parser(self):
         
         self.parser.add_argument("--input", type=str, default=self.cam_path,
                             help="video source. If empty, uses webcam 0 stream")
@@ -46,7 +47,7 @@ class Setup:
         self.args = self.parser.parse_args()
 
 
-    def connectAurdino(self):
+    def connect_arduino(self):
         
         if(self.arduino_connected):
             try:
@@ -77,10 +78,10 @@ class Setup:
             raise(ValueError("Invalid weight path {}".format(os.path.abspath(self.args.weights))))
         if not os.path.exists(self.args.data_file):
             raise(ValueError("Invalid data file path {}".format(os.path.abspath(self.args.data_file))))
-        if str2int(self.args.input) == str and not os.path.exists(self.args.input):
+        if Setup.str2int(self.args.input) == str and not os.path.exists(self.args.input):
             raise(ValueError("Invalid video path {}".format(os.path.abspath(self.args.input))))
             
-     def str2int(self, video_path):
+    def str2int(self, video_path):
         """
         argparse returns and string althout webcam uses int (0, 1 ...)
         Cast to int if needed
@@ -94,8 +95,8 @@ class Setup:
     def  set_cam_input(self, path):
         self.cam_path=path            # "http://192.168.43.156:4747/video"
         
-     def give_file(self):
-        
+    def give_file(self):
+    
         log_folder="logs"
         test_count = 0
         today = datetime.datetime.now()
@@ -112,14 +113,14 @@ class Setup:
             test_count = test_count + 1
 
         self.log_file_name = day_folder + "/" + "test" + str(test_count)	
-        
+
         self.file = open(self.log_file_name + ".json", "w+")
-    
-     def setup_driver(self,input_video, output_video, size,args): 
-        Setup.Parser(self)
-        Setup.connect_aurdino(self)
+
+    def setup_driver(self,input_video, output_video, size,args): 
+        Setup.set_parser(self)
+        Setup.connect_arduino(self)
         Setup.check_arguments_errors(self)
         Setup.set_cam_input(self, self.args.input)                                  # Take input from parser... default set to 6.
         Setup.give_file(self)
         Setup.set_saved_video(self,input_video, self.log_file_name + ".mp4", size)  # Need to figure out how to pass input path.
-        
+    
