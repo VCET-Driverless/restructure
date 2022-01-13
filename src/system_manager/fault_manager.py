@@ -1,37 +1,53 @@
-import restructure.src.system_manager.setup as setup            
-#from system_manager.setup import Setup
-import Perception
-#from perception.perception import Perception
+mport os
 import serial
-import math
-import cv2
 
-class check_fault:
-    def intersect_error():                                  #pure_pursuit.py
-        slope= math.inf
+class Fault:
+    
+    def check_fault(self, setup, perception, path_plan, control):
+        
+        Fault.check_setup(setup)
+        Fault.perception_check(perception)
+        Fault.hardware_test(setup)
+        
+    def check_setup(self, setup):
+        
+        if os.isFile(setup.file_name):
+            raise Exception("Log file already exists")
 
-    def str2int_error(video_path):                          #Setup.py
-        return video_path
-
-    def pathplan_different_boundary_error():                #path_plan.py
-        pass
-
-    def angle_error():                                      #path_plan.py
-        slope = 99999
-
-    def pathplan_error():                                   #path_plan.py
-        pass      #left box and right box
-
-    def connect_arduino_error():                            #Setup.py
         try:
-            print("failed...")
-            setup.serial=serial.Serial('/dev/ttyACM1',setup.baud_rate)
-            print("Connecting to : /dev/ttyACM1")
+            setup.serial=serial.Serial('/dev/ttyACM0',setup.baud_rate)
+            print("Connecting to : /dev/ttyACM0")
         except:
-            print("failed... give port premission")   
+            try:
+                setup.serial=serial.Serial('/dev/ttyACM1',setup.baud_rate)
+                print("Connecting to : /dev/ttyACM1")
+            except:
+                raise Exception("Acess is denied to both serial port")
 
-    def different_boundary_main_error():
-        Perception.cap.release()
-        setup.video.release()
-        cv2.destroyAllWindows()
+        #check for parser() error for weight_file ,config_file and data_file
+        if not os.path.exists(setup.args.config_file):
+            raise(ValueError("Invalid config path {}".format(os.path.abspath(setup.args.config_file))))
+        if not os.path.exists(setup.args.weights):
+            raise(ValueError("Invalid weight path {}".format(os.path.abspath(setup.args.weights))))
+        if not os.path.exists(setup.args.data_file):
+            raise(ValueError("Invalid data file path {}".format(os.path.abspath(setup.args.data_file))))
+        if Setup.str2int(setup.args.input) == str and not os.path.exists(setup.args.input):
+            raise(ValueError("Invalid video path {}".format(os.path.abspath(setup.args.input))))
 
+            
+    def perception_check(self, perception):
+        
+        if not perception.cap.isOpened():
+           raise Exception("Cannot access the camera") 
+       
+
+       
+    def hardware_test(self, setup):
+        
+        setup.serial.write(str.encode(3))
+    
+        setup.serial.write(str.encode(4))
+        
+        setup.serial.write(str.encode(5))
+        
+        setup.serial.write(str.encode(4))
