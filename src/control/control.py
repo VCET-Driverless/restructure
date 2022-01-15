@@ -1,23 +1,29 @@
+
+# Library imports
 import numpy as np
 import math
 import cv2
-from pure_pursuit import Pure_Pursuit
 import time
-from constants import TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+
+# System imports
+from pure_pursuit import Pure_Pursuit
 
 
-#sending top view image to the control module is left
-# top view image is needed to draw pure pursuit path
+#sending top view image to the control module is left  -> Done, sent to control.
+#top view image is needed to draw pure pursuit path
 
 class Control:
-    def __init__(self):
-        self.angle = 0
-        self.P = 2.115
+    
+    def __init__(self, constants):
+        
+        self.angle = 0               # This variable is not used anywhere??!!
+        self.P = constants.P
         self.limit_frames = 5
-        self.rate = 1
-        self.MS = 1/self.rate
+        self.rate = constants.RATE
+        self.MS = constants.MS
         self.arduino_code = 1
-
+        self.top_view_img_dim = constants.TOP_VIEW_IMAGE_DIMESNION
+        
     def send_steer_angle(angle):
         """
          Maps angle range to integer for sending to Arduino
@@ -61,16 +67,18 @@ class Control:
             return -1 * (90 - angle)
         return (90 + angle)
 
-    def control(self,setup,path_queue,p2):
-        pp = Pure_Pursuit()
+    def control(self, setup, path_queue, constants, top_view_image, p2_child):
+        
+        pp = Pure_Pursuit(constants)
         angle = 0
         steering = '4'
         angle_limit = [0]*self.limit_frames
-        # ARDUINO_CONNECTED = False
-        # s=serial.Serial('/dev/ttyACM0',self.BAUD_RATE)
         prev_time_my = time.time()
+        
         while(True):
+            
             lines = path_queue.get()
+            
             if (setup.args.controller == 0):
                 # encode signal for steering control(old controller)
                 angle = Control.angle(self,lines[0],lines[1])
@@ -101,13 +109,16 @@ class Control:
                 print('updated', angle_send)
 
             if not setup.args.dont_show:
-                top_image = cv2.resize(top_image, (2 * TOP_VIEW_IMAGE_DIMESNION[0],
-                                                   2 * TOP_VIEW_IMAGE_DIMESNION[1]))
+                top_image = cv2.resize(top_image, (2 * self.top_view_img_dim[0],
+                                                   2 * self.top_view_img_dim[1]))
                 cv2.imshow('top_view', top_image)
+                
             if cv2.waitKey(2) == 27:
                 if setup.ARDUINO_CONNECTED:
                     setup.s.write(str('c').encode())
+              
                 break
-
-            if p2.recv()==False:
-                break
+            
+            # This will be added later in wip branch
+            # if p2_child.recv()==False:
+            #     break

@@ -1,18 +1,22 @@
+
+# Library imports
 import math
 import cv2
 
+# System imports
+
 
 class Pure_Pursuit:
-    def __init__(self):
-        self.look_ahead_dist = 180.0
+    
+    def __init__(self, constants):
+        self.look_ahead_dist = constants.Lfc
         self.path_lines = []
-        self.top_view_image_dimension = (416, 285)
-        self.front_view_image_dimension = (416, 416)  # (w, h) = (x, y)
-        self.car_below_y = 25  # y coordinate of car below max y coordinate
-        self.top_view_car_coordinate = (
-        self.top_view_image_dimension[0] // 2, self.top_view_image_dimension[1] + self.car_below_y)
+        self.top_view_image_dimension = constants.TOP_VIEW_IMAGE_DIMESNION
+        self.front_view_image_dimension = constants.FRONT_VIEW_IMAGE_DIMESNION  # (w, h) = (x, y)
+        self.car_below_y = constants.CAR_BELOW_Y  # y coordinate of car below max y coordinate
+        self.top_view_car_coordinate = constants.TOP_VIEW_CAR_COORDINATE
         self.cx, self.cy = self.top_view_car_coordinate
-        self.wheelbase = 65
+        self.wheelbase = constants.L
 
     def intersect(self, path_lines):
         r = self.look_ahead_dist
