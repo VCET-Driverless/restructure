@@ -1,5 +1,6 @@
 
 # Library imports
+from asyncio.proactor_events import constants
 from multiprocessing import Process,Queue,Pipe
 
 # System imports
@@ -8,6 +9,7 @@ from planning.path_plan import Planning
 from control.control import Control
 from system_manager.setup import Setup
 from system_manager.fault_manager import Fault
+from system_manager.constants import Constants
 
 # fault and log will be called in each class individually at required places.
 # from system_manager.fault_manager.detect import check_fault
@@ -17,11 +19,13 @@ from system_manager.fault_manager import Fault
 def main():
 
 	# Declaring objects(instances variables) of each core class
-	setup = Setup()
+	constants = Constants()
+	constants.set_constants()
+	setup = Setup(constants)
 	setup.setup_driver()
 	perception = Perception()
-	path_plan = Planning()
-	control = Control()
+	path_plan = Planning(constants)
+	control = Control(constants)
 	fault = Fault()
 	
 	# Raise error w.r.t hardware or software(eg: cv2 port not found, serial port not found, log file name already exists, etc)
