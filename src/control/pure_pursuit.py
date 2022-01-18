@@ -1,17 +1,22 @@
+
+# Library imports
 import math
 import cv2
-from constants import (TOP_VIEW_CAR_COORDINATE,
-                        TOP_VIEW_IMAGE_DIMESNION,
-                       Lfc,l)
+
+# System imports
+
 
 class Pure_Pursuit:
-    def __init__(self):
-        self.look_ahead_dist = Lfc
+    
+    def __init__(self, constants):
+        self.look_ahead_dist = constants.Lfc
         self.path_lines = []
-        self.top_view_image_dimension = TOP_VIEW_IMAGE_DIMESNION
-        self.top_view_car_coordinate = TOP_VIEW_CAR_COORDINATE
-        self.cx, self.cy = TOP_VIEW_CAR_COORDINATE
-        self.wheelbase = l
+        self.top_view_image_dimension = constants.TOP_VIEW_IMAGE_DIMESNION
+        self.front_view_image_dimension = constants.FRONT_VIEW_IMAGE_DIMESNION  # (w, h) = (x, y)
+        self.car_below_y = constants.CAR_BELOW_Y  # y coordinate of car below max y coordinate
+        self.top_view_car_coordinate = constants.TOP_VIEW_CAR_COORDINATE
+        self.cx, self.cy = self.top_view_car_coordinate
+        self.wheelbase = constants.L
 
     def intersect(self, path_lines):
         r = self.look_ahead_dist
@@ -24,32 +29,32 @@ class Pure_Pursuit:
                 index = path_lines.index(i)
                 got_a_pt = True
                 break
-        # Find a b c
-        if got_a_pt:
-            try:
-                slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (
-                            path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
-            except:
-                slope = math.inf
-            a = slope
-            b = -1
-            c = -1 * slope * (path_lines[index - 1][0] - cx) + path_lines[index - 1][1] - cy
+            # Find a b c
+            if got_a_pt:
+                try:
+                    slope = (path_lines[index][1] - cy - path_lines[index - 1][1] + cy) / (
+                                path_lines[index][0] - cx - path_lines[index - 1][0] + cx)
+                except:
+                    slope = math.inf
+                a = slope
+                b = -1
+                c = -1 * slope * (path_lines[index - 1][0] - cx) + path_lines[index - 1][1] - cy
 
-            x0 = -1 * a * c / (a * a + b * b)
-            y0 = -b * c / (a * a + b * b)
-            d = r * r - c * c / (a * a + b * b)
-            multiplier = math.sqrt(d / (a * a + b * b))
-            ax = x0 + b * multiplier
-            bx = x0 - b * multiplier
-            ay = y0 - a * multiplier
-            by = y0 + a * multiplier
+                x0 = -1 * a * c / (a * a + b * b)
+                y0 = -b * c / (a * a + b * b)
+                d = r * r - c * c / (a * a + b * b)
+                multiplier = math.sqrt(d / (a * a + b * b))
+                ax = x0 + b * multiplier
+                bx = x0 - b * multiplier
+                ay = y0 - a * multiplier
+                by = y0 + a * multiplier
 
-            if (ay + cy < cy):
-                return (ax + cx, ay + cy)
+                if (ay + cy < cy):
+                    return (ax + cx, ay + cy)
+                else:
+                    return (bx + cx, by + cy)
             else:
-                return (bx + cx, by + cy)
-        else:
-            return path_lines[-1]
+                return path_lines[-1]
 
     def pure_pursuit_control(self, tx, ty):
         self.wheelbase = 65
