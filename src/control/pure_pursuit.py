@@ -15,7 +15,7 @@ class Pure_Pursuit:
         self.front_view_image_dimension = constants.FRONT_VIEW_IMAGE_DIMESNION  # (w, h) = (x, y)
         self.car_below_y = constants.CAR_BELOW_Y  # y coordinate of car below max y coordinate
         self.top_view_car_coordinate = constants.TOP_VIEW_CAR_COORDINATE
-        self.cx, self.cy = self.top_view_car_coordinate
+        self.cx, self.cy = constants.top_view_car_coordinate
         self.wheelbase = constants.L
 
     def intersect(self, path_lines):
