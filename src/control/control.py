@@ -16,12 +16,10 @@ class Control:
     
     def __init__(self, constants):
         
-        self.angle = 0               # This variable is not used anywhere??!!
         self.P = constants.P
         self.limit_frames = 5
         self.rate = constants.RATE
         self.MS = constants.MS
-        self.arduino_code = 1
         self.top_view_img_dim = constants.TOP_VIEW_IMAGE_DIMESNION
         
     def send_steer_angle(angle):
