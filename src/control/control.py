@@ -72,51 +72,49 @@ class Control:
         steering = '4'
         angle_limit = [0]*self.limit_frames
         prev_time_my = time.time()
-        
-        while(True):
-            
-            lines = path_queue.get()
-            
-            if (setup.args.controller == 0):
-                # encode signal for steering control(old controller)
-                angle = Control.angle(self,lines[0],lines[1])
-                angle = math.floor(angle)
-            elif (setup.args.controller == 1):
-                # encode signal for steering control(new controller)
-                angle, top_image = pp.pure_pursuit(self,lines,frame)
-                angle = math.floor(angle)
+                    
+        lines = path_queue.get()
 
-            angle_limit.append(angle)
-            angle_limit.pop(0)
-            angle_send = Control.send_steer_angle((sum(angle_limit))//self.limit_frames)
-            st_ang = self.P * (sum(angle_limit)) // self.limit_frames
+        if (setup.args.controller == 0):
+            # encode signal for steering control(old controller)
+            angle = Control.angle(self,lines[0],lines[1])
+            angle = math.floor(angle)
+        elif (setup.args.controller == 1):
+            # encode signal for steering control(new controller)
+            angle, top_image = pp.pure_pursuit(self,lines,frame)
+            angle = math.floor(angle)
 
-            if (time.time() - prev_time_my >= self.MS):
-                prev_time_my = time.time()
-                if (setup.ARDUINO_CONNECTED):
-                    serial_data = st_ang
-                    serial_writen_now = True
-                    setup.s.write(str(serial_data).encode())
+        angle_limit.append(angle)
+        angle_limit.pop(0)
+        angle_send = Control.send_steer_angle((sum(angle_limit))//self.limit_frames)
+        st_ang = self.P * (sum(angle_limit)) // self.limit_frames
 
-                # Prevents Arduino buffer overlfow,
-            if (steering != angle_send):
-                if (setup.ARDUINO_CONNECTED):
-                    '''s.write(str.encode(angle_a))'''
-                    pass
-                steering = angle_send
-                print('updated', angle_send)
+        if (time.time() - prev_time_my >= self.MS):
+            prev_time_my = time.time()
+            if (setup.ARDUINO_CONNECTED):
+                serial_data = st_ang
+                serial_writen_now = True
+                setup.s.write(str(serial_data).encode())
 
-            if not setup.args.dont_show:
-                top_image = cv2.resize(top_image, (2 * self.top_view_img_dim[0],
-                                                   2 * self.top_view_img_dim[1]))
-                cv2.imshow('top_view', top_image)
-                
-            if cv2.waitKey(2) == 27:
-                if setup.ARDUINO_CONNECTED:
-                    setup.s.write(str('c').encode())
-              
-                break
-            
+            # Prevents Arduino buffer overlfow,
+        if (steering != angle_send):
+            if (setup.ARDUINO_CONNECTED):
+                '''s.write(str.encode(angle_a))'''
+                pass
+            steering = angle_send
+            print('updated', angle_send)
+
+        if not setup.args.dont_show:
+            top_image = cv2.resize(top_image, (2 * self.top_view_img_dim[0],
+                                               2 * self.top_view_img_dim[1]))
+            cv2.imshow('top_view', top_image)
+
+        if cv2.waitKey(2) == 27:
+            if setup.ARDUINO_CONNECTED:
+                setup.s.write(str('c').encode())
+
+            break
+
             # This will be added later in wip branch
             # if p2_child.recv()==False:
             #     break
