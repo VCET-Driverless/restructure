@@ -81,7 +81,7 @@ class Control:
             angle = math.floor(angle)
         elif (setup.args.controller == 1):
             # encode signal for steering control(new controller)
-            angle, top_image = pp.pure_pursuit(self,lines,frame)
+            angle, top_image = pp.pure_pursuit(self,lines,top_view_image)
             angle = math.floor(angle)
 
         angle_limit.append(angle)
