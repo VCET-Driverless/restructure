@@ -113,8 +113,6 @@ class Control:
             if setup.ARDUINO_CONNECTED:
                 setup.s.write(str('c').encode())
 
-            break
-
             # This will be added later in wip branch
             # if p2_child.recv()==False:
             #     break
