@@ -1,8 +1,12 @@
+
+# Library imports
 import cv2
-#IMPORT DARKNET
+
+# System imports
+import darknet
 from transform import inv_map
 
-class percive:
+class Perceive:
 
     def init(self, setup):
         self.cap = cv2.VideoCapture(setup.CAM_PATH)
@@ -10,6 +14,7 @@ class percive:
         self.height = darknet.network_height(self.network)
 
     def video_capture(self, frame_queue, darknet_image_queue):
+        
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret:
