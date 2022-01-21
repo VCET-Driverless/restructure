@@ -21,7 +21,7 @@ class Detect:
         )
 
 
-    def detect(self, setup, darknet_image_queue, detections_queue, fps_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_parent, p2_child):
+    def detect(self, darknet_image_queue, detections_queue, fps_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_parent, p2_child):
         
         transform = Transform()
         
