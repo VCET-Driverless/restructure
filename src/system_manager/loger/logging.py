@@ -59,15 +59,15 @@ class Log:
         :returns: Saves the data in a JSON file
         """
         
-        i=0
+        frame=0
         
-        while i<len(percieve_map) and i<len(detection_map) and i<len(path_map):
+        while frame<len(percieve_map) and frame<len(detection_map) and frame<len(path_map):
     
             logs = {}
             
-            percep_map = percieve_map.get(i)
-            detect_map = detection_map.get(i)
-            path_plan_map = path_map.get(i)
+            percep_map = percieve_map.get(frame)
+            detect_map = detection_map.get(frame)
+            path_plan_map = path_map.get(frame)
             
             logs.update(percep_map)
             logs.update(detect_map)
@@ -75,12 +75,11 @@ class Log:
             
             self.log_data.append(logs)
             
-            i+=1
+            frame+=1
             
         
-        
-        # Both must have equal number of frames
-        if(len(percieve_map) != len(path_map)):
+        # All maps must have equal number of frames
+        if(len(percieve_map) != len(path_map) or len(percieve_map) != len(detection_map) or len(path_map) != len(detection_map)):
             print("Log data is faulty.")
             
             
