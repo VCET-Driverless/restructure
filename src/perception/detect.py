@@ -3,8 +3,6 @@
 import time
 import cv2
 import sys
-
-from tqdm import trange
 sys.path.append('../../darknet')
 
 # System imports
