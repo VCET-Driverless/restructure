@@ -9,7 +9,7 @@ from perception.detect import Detect
 from planning.path_plan import Planning
 from control.control import Control
 from system_manager.setup import Setup
-from system_manager.fault_manager import Fault
+from system_manager.fault_manager.fault_manager import Fault
 from system_manager.loger.logging import Log
 
 
@@ -18,8 +18,8 @@ def main():
 	# Declaring objects(instances variables) of each core class
 	setup = Setup()
 	setup.setup_driver()
-	perception = Perceive()
 	detect = Detect()
+	perception = Perceive(detect)
 	path_plan = Planning()
 	control = Control()
 	log = Log()
@@ -56,7 +56,7 @@ def main():
 								setup, 
         						darknet_image_queue, 
 								detections_queue,
-        						top_view_blue_coordinates_queue,
+                                top_view_blue_coordinates_queue,
 								top_view_orange_coordinates_queue, 
         						p1_child,
               					p2_parent
@@ -80,9 +80,9 @@ def main():
 		process3.start()
 
 		# Wait for terminatation of each processes
-		process1.join()
-		process2.join()
 		process3.join()
+		process2.join()
+		process1.join()
 		
 		# Log and save data
 		log.log(log_queue)
