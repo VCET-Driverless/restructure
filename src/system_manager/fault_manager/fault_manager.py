@@ -4,7 +4,7 @@ import time
 
 class Fault:
     
-    def check_fault(self, setup,perception, path_plan, control):
+    def check_fault(self, setup, perception, path_plan, control):
         Fault.check_logfile(self,setup)
         Fault.check_serial(setup)
         Fault.check_args(setup)

@@ -6,19 +6,22 @@ import cv2
 import os
 import datetime
 
-class Setup:
+# System imports
+from constants import Constants
 
-    def __init__(self, constants):
+class Setup(Constants):
+
+    def __init__(self):
         self.serial = serial.Serial()
         self.video = cv2.VideoWriter()
         self.parser = argparse.ArgumentParser(description="Setup Parser")
         self.args = argparse.Parser()
-        self.cam_path = constants.CAM_PATH
+        self.cam_path = self.CAM_PATH
         self.log_file_name = ""
         self.file = open()
         self.BOUNDARY_INVERT = None
-        self.baud_rate = constants.BAUD_RATE
-        self.arduino_connected = constants.ARDUINO_CONNECTED
+        self.baud_rate = self.BAUD_RATE
+        self.arduino_connected = self.ARDUINO_CONNECTED
         
 
     def set_parser(self):
