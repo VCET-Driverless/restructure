@@ -2,20 +2,23 @@
 # Library imports
 import cv2
 import numpy as np
-import math
+import time
+import sys
+sys.path.append('../control')
+sys.path.append('../system_manager')
 
-class Planning:
+# System imports
+from control import Control
+from constants import Constants
+ 
+class Planning(Constants):
     
-    def __init__(self, constants):
+    def __init__(self):
         
+        super().__init__()
         self.left_box=[]
         self.right_box=[]
         self.lines=[]
-        self.limit_cones = constants.LIMIT_CONE
-        self.top_view_image_dim = constants.TOP_VIEW_IMAGE_DIMESNION
-        self.top_view_car_coord = constants.TOP_VIEW_CAR_COORDINATE
-        self.midpoint_one_boundary = constants.MIDPOINT_ONE_BOUNDARY
-        
         
     def pathbana(self,left_box, right_box, lines, inv_image):
         """
@@ -114,14 +117,14 @@ class Planning:
         self.right_box.sort()'''
         
         try:
-            if(self.left_box[-1][1] < self.limit_cones):
+            if(self.left_box[-1][1] < self.LIMIT_CONE):
                 self.left_box.clear()
         except:
             #print('Left Exception in pathplan function.............')
             pass
                 
         try:
-            if(self.right_box[-1][1] < self.limit_cones):
+            if(self.right_box[-1][1] < self.LIMIT_CONE):
                 self.right_box.clear()
         except:
             pass
@@ -129,7 +132,7 @@ class Planning:
     
         
         self.lines = []
-        self.lines.append(self.top_view_car_coord)
+        self.lines.append(self.TOP_VIEW_CAR_COORDINATE)
 
 
         if( len(self.left_box) == 0 and len(self.right_box) == 0 ):
@@ -139,14 +142,14 @@ class Planning:
             for i in range(len(self.right_box)):
                 #print( 'test1' )
                 x, y = self.right_box[i]
-                x = x - self.midpoint_one_boundary
+                x = x - self.MIDPOINT_ONE_BOUNDARY
                 self.lines.append( (int(x), int(y)) )
             
         elif( len(self.left_box) != 0 and len(self.right_box) == 0 ):
             for i in range(len(self.left_box)):
                 #print( 'test2' )
                 x, y = self.left_box[i]
-                x = x + self.midpoint_one_boundary
+                x = x + self.MIDPOINT_ONE_BOUNDARY
                 self.lines.append( (int(x), int(y)) )
             
         elif( len(self.left_box) != 0 and len(self.right_box) != 0 ):
@@ -184,7 +187,7 @@ class Planning:
         """
        
 
-        car_x, car_y = self.top_view_car_coord
+        car_x, car_y = self.TOP_VIEW_CAR_COORDINATE
         cone_x, cone_y = cone_coor
         direction_x, direction_y = direction_coor
 
@@ -213,7 +216,6 @@ class Planning:
         left_box = []
         right_box = []
         
-
         if invert:
             left_box, right_box = blue.copy(), orange.copy()
             #print(left_box==blue, right_box==orange, "if")
@@ -231,14 +233,14 @@ class Planning:
         right_box.sort()'''
      
         try:
-            if(left_box[-1][1] < self.limit_cones):
+            if(left_box[-1][1] < self.LIMIT_CONE):
                 left_box.clear()
         except:
             #print('Left Exception in pathplan function.............')
             pass
                 
         try:
-            if(right_box[-1][1] < self.limit_cones):
+            if(right_box[-1][1] < self.LIMIT_CONE):
                 right_box.clear()
         except:
             pass
@@ -246,7 +248,7 @@ class Planning:
      
         
         lines = []
-        lines.append(self.top_view_car_coord)
+        lines.append(self.TOP_VIEW_CAR_COORDINATE)
 
 
         if( len(left_box) == 0 and len(right_box) == 0 ):
@@ -256,14 +258,14 @@ class Planning:
             for i in range(len(right_box)):
                 #print( 'test1' )
                 x, y = right_box[i]
-                x = x - self.midpoint_one_boundary
+                x = x - self.MIDPOINT_ONE_BOUNDARY
                 lines.append( (int(x), int(y)) )
             
         elif( len(left_box) != 0 and len(right_box) == 0 ):
             for i in range(len(left_box)):
                 #print( 'test2' )
                 x, y = left_box[i]
-                x = x + self.midpoint_one_boundary
+                x = x + self.MIDPOINT_ONE_BOUNDARY
                 lines.append( (int(x), int(y)) )
             
         elif( len(left_box) != 0 and len(right_box) != 0 ):
@@ -292,20 +294,17 @@ class Planning:
         
         return left_box[::-1], right_box[::-1], lines[::-1]
 
-    def path_plan_driver(self, setup, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_child, p2_parent):
+    def path_plan_driver(self, setup, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_parent):
         
         queue_is_empty = False
+        steering = '4'
+        control = Control()
+        prev_send_time = time.time()
         
         while True:
-                
-            # FRAME_QUEUE AND DETECTIONS_QUEUE were used here previously just to draw 
-            # the bounding boxes and show the video on cv2 window
-            # This feature has now been moved to perception/detect.py
-            # frame_resized = frame_queue.get()
-            # detections = detections_queue.get()
            
             if queue_is_empty is False:
-                # image = darknet.draw_boxes(detections, frame_resized, class_colors)
+                
                 top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
@@ -317,30 +316,48 @@ class Planning:
                     mybox = blue + orange
                     left_box, right_box, lines = Planning.pathplan(mybox, steering)
                 
-                
                 # Drawing the top view visualization and showing on cv2 window
                 top_image = Planning.pathbana(left_box, right_box, lines, top_image)
-                top_image = cv2.resize(top_image, (2*self.top_view_image_dim[0],
-                                                       2*self.top_view_image_dim[1]))
-                cv2.imshow('top_view', top_image)
+                
+                # Call control module
+                steering, prev_time, top_image= control.control(steering, prev_time, top_image)
+                
+                
+                # Display the output
+                if not setup.args.dont_show:
+                    image = detected_images_queue.get()
+                    
+                    # Visualization of front view
+                    cv2.namedWindow("Inference") 
+                    cv2.moveWindow("Inference", 1000,30)
+                    image = cv2.resize(image, (2*self.TOP_VIEW_IMAGE_DIMESNION[0],
+                                               2*self.TOP_VIEW_IMAGE_DIMESNION[0]))
+                    cv2.imshow('Inference', image)
+                    
+                    # Visualization of Top view
+                    top_image = cv2.resize(top_image, (2*self.TOP_VIEW_IMAGE_DIMESNION[0],
+                                                       2*self.TOP_VIEW_IMAGE_DIMESNION[1]))
+                    cv2.imshow('top_view', top_image)                
                 
                 
                 # Used to break out of the loop if cv2 window is escaped
-                # Or if Pipe sends signals from parent process i.e perception
-                if cv2.waitKey() == 27 or p1_child.recv() == False:
-                    
-                    p2_parent.send(False)  # Act as a parent and send signal to child i.e control
+                if cv2.waitKey(2) == 27:
+                    control.stop_car()     # Send signal to arduino to stop hardware. 
+                    p1_parent.send(False)  # Act as a parent and send signal to child i.e detect
                     break
+                else:
+                    p1_parent.send(True)
                     
                 
                 # Check if at any point shared memory queue is empty.
-                if top_view_frame_queue.empty():
+                if top_view_frame_queue.empty() or top_view_blue_coordinates_queue.empty() or top_view_orange_coordinates_queue.empty():
                     queue_is_empty = True
             
             else:
-                if not top_view_frame_queue.empty():
-                    queue_is_empty = False
+                if not top_view_frame_queue.empty() and not top_view_blue_coordinates_queue.empty() and not top_view_orange_coordinates_queue.empty():
+                    queue_is_empty = True
                     
-                print("Debug planning: Top view queue is empty")
+                print("Debug planning: one of the queue is empty")
                 
         cv2.destroyAllWindows()
+        print("Path plan has stopped")
