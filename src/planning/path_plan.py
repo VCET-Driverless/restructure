@@ -1,17 +1,24 @@
+
+# Library imports
 import cv2
 import numpy as np
-import math
-from constants import LIMIT_CONE, MIDPOINT_ONE_BOUNDARY, TOP_VIEW_CAR_COORDINATE, TOP_VIEW_IMAGE_DIMESNION
+import time
+import sys
+sys.path.append('../control')
+sys.path.append('../system_manager')
 
-
-class Path_Plan:
+# System imports
+from control import Control
+from constants import Constants
+ 
+class Planning(Constants):
+    
     def __init__(self):
         
+        super().__init__()
         self.left_box=[]
         self.right_box=[]
         self.lines=[]
-        #top_image=[]
-        
         
     def pathbana(self,left_box, right_box, lines, inv_image):
         """
@@ -27,7 +34,6 @@ class Path_Plan:
         self.right_box = right_box
         self.lines = lines
         
-
         for i in range(len(self.lines) - 1):
             cv2.circle(inv_image,self.lines[i], 5, (0,0,0), -1)
             cv2.line(inv_image,self.lines[i],self.lines[i+1],(255,255,0),4)
@@ -78,7 +84,7 @@ class Path_Plan:
                         right_count = right_count - 1
 
             elif( str_ang == '0' or str_ang == '1' or str_ang == '2'):
-                if( not self.line_x((TOP_VIEW_IMAGE_DIMESNION[0]*ratio, 0), (x, y))):
+                if( not self.line_x((self.topViewImageDim[0]*ratio, 0), (x, y))):
                     if(left_count > 0):
                         self.left_box.append(mybox[i])
                         left_count = left_count - 1
@@ -88,8 +94,8 @@ class Path_Plan:
                         right_count = right_count - 1
 
             elif( str_ang == '6' or str_ang == '7' or str_ang == '8' ):
-                if( self.line_x(( TOP_VIEW_IMAGE_DIMESNION[0] - 
-                            TOP_VIEW_IMAGE_DIMESNION[0] * ratio, 0 ), (x, y))):
+                if( self.line_x(( self.topViewImageDim[0] - 
+                            self.topViewImageDim[0] * ratio, 0 ), (x, y))):
                     if(right_count > 0):
                         self.right_box.append(mybox[i])
                         right_count = right_count - 1
@@ -111,14 +117,14 @@ class Path_Plan:
         self.right_box.sort()'''
         
         try:
-            if(self.left_box[-1][1] < LIMIT_CONE):
+            if(self.left_box[-1][1] < self.LIMIT_CONE):
                 self.left_box.clear()
         except:
             #print('Left Exception in pathplan function.............')
             pass
                 
         try:
-            if(self.right_box[-1][1] < LIMIT_CONE):
+            if(self.right_box[-1][1] < self.LIMIT_CONE):
                 self.right_box.clear()
         except:
             pass
@@ -126,7 +132,7 @@ class Path_Plan:
     
         
         self.lines = []
-        self.lines.append(TOP_VIEW_CAR_COORDINATE)
+        self.lines.append(self.TOP_VIEW_CAR_COORDINATE)
 
 
         if( len(self.left_box) == 0 and len(self.right_box) == 0 ):
@@ -136,14 +142,14 @@ class Path_Plan:
             for i in range(len(self.right_box)):
                 #print( 'test1' )
                 x, y = self.right_box[i]
-                x = x - MIDPOINT_ONE_BOUNDARY
+                x = x - self.MIDPOINT_ONE_BOUNDARY
                 self.lines.append( (int(x), int(y)) )
             
         elif( len(self.left_box) != 0 and len(self.right_box) == 0 ):
             for i in range(len(self.left_box)):
                 #print( 'test2' )
                 x, y = self.left_box[i]
-                x = x + MIDPOINT_ONE_BOUNDARY
+                x = x + self.MIDPOINT_ONE_BOUNDARY
                 self.lines.append( (int(x), int(y)) )
             
         elif( len(self.left_box) != 0 and len(self.right_box) != 0 ):
@@ -172,71 +178,6 @@ class Path_Plan:
         
         return self.left_box[::-1], self.right_box[::-1], self.lines[::-1]
 
-    def angle(self,p1, p2):
-        """
-        Computes angle w.r.t., car
-        :returns: angle w.r.t, car
-        """
-        
-        x, y = p1
-        p, q = p2
-        try:
-            slope = (q - y)/(p - x)
-        except:
-            slope = 99999
-        angle = np.arctan(slope)*180/math.pi
-        if(angle > 0):
-            return -1*(90 - angle)
-        return (90 + angle)
-
-
-    def steer(self,angle):
-    
-        """Maps angle range to integer for sending to Arduino
-        :angle:   steering angle
-        :returns: mapped integer"""
-
-    
-        a = range(-75,-26)
-        b = range(-26,-19)
-        c = range(-19,-13)
-        d = range(-13,-7)
-        e = range(-7,0)
-        f = range(0,7)
-        g = range(7,13)
-        h = range(13,19)
-        i = range(19,26)
-        j = range(26,75)
-        # m = range(-90,-26)
-        # n = range(-26,-12)
-        # o = range(-12,0)
-        # p = range(0,12)
-        # q = range(12,26)
-        # r = range(26,90)
-        
-        if(angle in a ):
-            return '0'
-        elif(angle in b ):
-            return '1'
-        elif( angle in c ):
-            return '2'
-        elif( angle in d ):
-            return '3'
-        elif( angle in e ):
-            return '4'
-        elif( angle in f ):
-            return '4'
-        elif( angle in g ):
-            return '5'
-        elif( angle in h ):
-            return '6'
-        elif( angle in i ):
-            return '7'
-        elif( angle in j ):
-            return '8' 
-        
-        
-
     def line_x(self,direction_coor, cone_coor):
         """
         Finds the position of cone w.r.t., line formed by given point and car coordinates
@@ -246,7 +187,7 @@ class Path_Plan:
         """
        
 
-        car_x, car_y = TOP_VIEW_CAR_COORDINATE
+        car_x, car_y = self.TOP_VIEW_CAR_COORDINATE
         cone_x, cone_y = cone_coor
         direction_x, direction_y = direction_coor
 
@@ -264,7 +205,7 @@ class Path_Plan:
             # False indicates left side
             return False
 
-    def pathplan_different_boundary(self,blue, orange, invert):
+    def pathplan_different_boundary(self, blue, orange, invert):
         """
         Separates top view coordinates as left and right boundary
         Also uses prior steering angle 
@@ -275,7 +216,6 @@ class Path_Plan:
         left_box = []
         right_box = []
         
-
         if invert:
             left_box, right_box = blue.copy(), orange.copy()
             #print(left_box==blue, right_box==orange, "if")
@@ -293,14 +233,14 @@ class Path_Plan:
         right_box.sort()'''
      
         try:
-            if(left_box[-1][1] < LIMIT_CONE):
+            if(left_box[-1][1] < self.LIMIT_CONE):
                 left_box.clear()
         except:
             #print('Left Exception in pathplan function.............')
             pass
                 
         try:
-            if(right_box[-1][1] < LIMIT_CONE):
+            if(right_box[-1][1] < self.LIMIT_CONE):
                 right_box.clear()
         except:
             pass
@@ -308,7 +248,7 @@ class Path_Plan:
      
         
         lines = []
-        lines.append(TOP_VIEW_CAR_COORDINATE)
+        lines.append(self.TOP_VIEW_CAR_COORDINATE)
 
 
         if( len(left_box) == 0 and len(right_box) == 0 ):
@@ -318,14 +258,14 @@ class Path_Plan:
             for i in range(len(right_box)):
                 #print( 'test1' )
                 x, y = right_box[i]
-                x = x - MIDPOINT_ONE_BOUNDARY
+                x = x - self.MIDPOINT_ONE_BOUNDARY
                 lines.append( (int(x), int(y)) )
             
         elif( len(left_box) != 0 and len(right_box) == 0 ):
             for i in range(len(left_box)):
                 #print( 'test2' )
                 x, y = left_box[i]
-                x = x + MIDPOINT_ONE_BOUNDARY
+                x = x + self.MIDPOINT_ONE_BOUNDARY
                 lines.append( (int(x), int(y)) )
             
         elif( len(left_box) != 0 and len(right_box) != 0 ):
@@ -354,20 +294,70 @@ class Path_Plan:
         
         return left_box[::-1], right_box[::-1], lines[::-1]
 
-    def path_plan_driver(self,frame_queue,top_view_blue_coordinates_queue,top_view_orange_coordinates_queue, setup):
+    def path_plan_driver(self, setup, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_parent):
+        
+        queue_is_empty = False
+        steering = '4'
+        control = Control()
+        prev_send_time = time.time()
+        
         while True:
-            frame_resized = frame_queue.get()
-            detections = detections_queue.get()
            
-            if frame_resized is not None:
-                image = darknet.draw_boxes(detections, frame_resized, class_colors)
+            if queue_is_empty is False:
+                
                 top_image = top_view_frame_queue.get()
                 blue = top_view_blue_coordinates_queue.get()
                 orange = top_view_orange_coordinates_queue.get()
 
+                # Appropriate path planning according to the kind of boundary.
                 if setup.args.boundary == 0:
-                    left_box, right_box, lines = chcone.pathplan_different_boundary(blue, orange, setup.BOUNDARY_INVERT)
+                    left_box, right_box, lines = Planning.pathplan_different_boundary(blue, orange, setup.BOUNDARY_INVERT)
                 else:
                     mybox = blue + orange
-                    left_box, right_box, lines = chcone.pathplan(mybox, steering)
-                top_image = chcone.pathbana(left_box, right_box, lines, top_image)
+                    left_box, right_box, lines = Planning.pathplan(mybox, steering)
+                
+                # Drawing the top view visualization and showing on cv2 window
+                top_image = Planning.pathbana(left_box, right_box, lines, top_image)
+                
+                # Call control module
+                steering, prev_time, top_image= control.control(steering, prev_time, top_image)
+                
+                
+                # Display the output
+                if not setup.args.dont_show:
+                    image = detected_images_queue.get()
+                    
+                    # Visualization of front view
+                    cv2.namedWindow("Inference") 
+                    cv2.moveWindow("Inference", 1000,30)
+                    image = cv2.resize(image, (2*self.TOP_VIEW_IMAGE_DIMESNION[0],
+                                               2*self.TOP_VIEW_IMAGE_DIMESNION[0]))
+                    cv2.imshow('Inference', image)
+                    
+                    # Visualization of Top view
+                    top_image = cv2.resize(top_image, (2*self.TOP_VIEW_IMAGE_DIMESNION[0],
+                                                       2*self.TOP_VIEW_IMAGE_DIMESNION[1]))
+                    cv2.imshow('top_view', top_image)                
+                
+                
+                # Used to break out of the loop if cv2 window is escaped
+                if cv2.waitKey(2) == 27:
+                    control.stop_car()     # Send signal to arduino to stop hardware. 
+                    p1_parent.send(False)  # Act as a parent and send signal to child i.e detect
+                    break
+                else:
+                    p1_parent.send(True)
+                    
+                
+                # Check if at any point shared memory queue is empty.
+                if top_view_frame_queue.empty() or top_view_blue_coordinates_queue.empty() or top_view_orange_coordinates_queue.empty():
+                    queue_is_empty = True
+            
+            else:
+                if not top_view_frame_queue.empty() and not top_view_blue_coordinates_queue.empty() and not top_view_orange_coordinates_queue.empty():
+                    queue_is_empty = True
+                    
+                print("Debug planning: one of the queue is empty")
+                
+        cv2.destroyAllWindows()
+        print("Path plan has stopped")
