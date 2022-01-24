@@ -9,7 +9,6 @@ from system_manager.fault_manager.detect import check_fault
 from system_manager.loger.logging import log
 
 def main():
-    check_fault()
     while True:
         # perception
         frame = None
