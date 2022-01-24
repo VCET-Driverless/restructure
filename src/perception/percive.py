@@ -15,7 +15,7 @@ class Perceive:
         self.width = darknet.network_width(detect.network)
         self.height = darknet.network_height(detect.network)
 
-    def video_capture(self, frame_queue, darknet_image_queue, top_view_frame_queue, p1_child):
+    def video_capture(self, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
         
         transform = Transform()
         
@@ -42,7 +42,7 @@ class Perceive:
             darknet_image_queue.put(img_for_detect)
             top_view_frame_queue.put(top_view_img_for_draw)
             
-            if p1_child.recv() == False:
+            if p2_child.recv() == False:
                 break
             
             
