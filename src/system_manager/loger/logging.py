@@ -1,15 +1,22 @@
 
 # Library imports
 from json import dump
+import sys
+sys.path.append('../')
 
-class Log:
+# System imports
+from constants import Constants
+
+class Log(Constants):
     
-    def __init__(self, setup, constants):
+    def __init__(self, setup):
+        
+        super().__init__()
         self.log_data=[]
         self.log_file_name = setup.log_file_name
-        self.DATA = [self.log_constants(constants)]
+        self.DATA = [self.log_constants()]
         
-    def log_constants(self, constants):
+    def log_constants(self):
         
         '''
         :returns: All the necessary static constants required to log
@@ -17,20 +24,20 @@ class Log:
         
         return {
             "log_constants" : {
-                "CAM_PATH" : constants.CAM_PATH,  
-                "BAUD_RATE" : constants.BAUD_RATE, 
-                "CAR_BELOW_Y" : constants.CAR_BELOW_Y,
-                "LIMIT_CONE" : constants.LIMIT_CONE,
-                "MIDPOINT_ONE_BOUNDARY" : constants.MIDPOINT_ONE_BOUNDARY,
-                "P" : constants.P,
-                "MAX_CONELESS_FRAMES" : constants.MAX_CONELESS_FRAMES,
-                "ARDUINO_CONNECTED" : constants.ARDUINO_CONNECTED,
-                "RATE" : constants.RATE, 
-                "TESTER" : constants.TESTER,
-                "WHICH_SYSTEM" : constants.WHICH_SYSTEM,
-                "TOP_VIEW_IMAGE_DIMESNION" : constants.TOP_VIEW_IMAGE_DIMESNION,
-                "FRONT_VIEW_POINTS" : constants.FRONT_VIEW_POINTS,
-                "Lookahead_Distance" : constants.Lfc
+                "CAM_PATH" : self.CAM_PATH,  
+                "BAUD_RATE" : self.BAUD_RATE, 
+                "CAR_BELOW_Y" : self.CAR_BELOW_Y,
+                "LIMIT_CONE" : self.LIMIT_CONE,
+                "MIDPOINT_ONE_BOUNDARY" : self.MIDPOINT_ONE_BOUNDARY,
+                "P" : self.P,
+                "MAX_CONELESS_FRAMES" : self.MAX_CONELESS_FRAMES,
+                "ARDUINO_CONNECTED" : self.ARDUINO_CONNECTED,
+                "RATE" : self.RATE, 
+                "TESTER" : self.TESTER,
+                "WHICH_SYSTEM" : self.WHICH_SYSTEM,
+                "TOP_VIEW_IMAGE_DIMESNION" : self.TOP_VIEW_IMAGE_DIMESNION,
+                "FRONT_VIEW_POINTS" : self.FRONT_VIEW_POINTS,
+                "Lookahead_Distance" : self.Lfc
             }
         }
         
@@ -48,45 +55,59 @@ class Log:
         dump(self.DATA, file, indent=4)
         file.close()
         
-        
-    def log(self, percieve_map, detection_map, path_map):
+    def log(self, log_queue):
         
         """
-        Logs the entire data obtained from all the processes
-        :perception_map: data from perception process
-        :detection_map: data from detection process
-        :path_map: data from path plan and control process
+        Saves the JSON file with all the data
+        " log_queue: frame by frame map of all the data to be logged
         :returns: Saves the data in a JSON file
         """
         
-        frame=0
+        while not log_queue.empty():
+            
+            self.log_data.append(log_queue.get())
         
-        while frame<len(percieve_map) and frame<len(detection_map) and frame<len(path_map):
-    
-            logs = {}
-            
-            percep_map = percieve_map.get(frame)
-            detect_map = detection_map.get(frame)
-            path_plan_map = path_map.get(frame)
-            
-            logs.update(percep_map)
-            logs.update(detect_map)
-            logs.update(path_plan_map)
-            
-            self.log_data.append(logs)
-            
-            frame+=1
-            
-        
-        # All maps must have equal number of frames
-        if(len(percieve_map) != len(path_map) or len(percieve_map) != len(detection_map) or len(path_map) != len(detection_map)):
-            print("Log data is faulty.")
-            
-            
-        # Open file, write, save it
         self.save_file()
         
         print("Data logged succesfully")
+        
+    # def log(self, percieve_map, detection_map, path_map):
+        
+    #     """
+    #     Logs the entire data obtained from all the processes
+    #     :perception_map: data from perception process
+    #     :detection_map: data from detection process
+    #     :path_map: data from path plan and control process
+    #     :returns: Saves the data in a JSON file
+    #     """
+        
+    #     frame=0
+    #     while frame<len(percieve_map) and frame<len(detection_map) and frame<len(path_map):
+    
+    #         logs = {}
+            
+    #         percep_map = percieve_map.get(frame)
+    #         detect_map = detection_map.get(frame)
+    #         path_plan_map = path_map.get(frame)
+            
+    #         logs.update(percep_map)
+    #         logs.update(detect_map)
+    #         logs.update(path_plan_map)
+            
+    #         self.log_data.append(logs)
+            
+    #         frame+=1
+            
+        
+    #     # All maps must have equal number of frames
+    #     if(len(percieve_map) != len(path_map) or len(percieve_map) != len(detection_map) or len(path_map) != len(detection_map)):
+    #         print("Log data is faulty.")
+            
+            
+    #     # Open file, write, save it
+    #     self.save_file()
+        
+    #     print("Data logged succesfully")
         
         
             
