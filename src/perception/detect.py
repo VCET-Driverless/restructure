@@ -19,6 +19,9 @@ class Detect:
             setup.args.weights,
             batch_size=1
         )
+        
+        self.width = darknet.network_width(self.network)
+        self.height = darknet.network_height(self.network)
 
 
     def detect(self, setup, darknet_image_queue, detections_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_child, p2_parent):
@@ -63,4 +66,4 @@ class Detect:
                     
                 print("Debug detections: darknet_image_queue is empty") 
         
-        print("Detection process released")
+        print("Detection process has stopped")

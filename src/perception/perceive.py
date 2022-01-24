@@ -12,8 +12,8 @@ class Perceive:
 
     def init(self, setup, detect):
         self.cap = cv2.VideoCapture(setup.cam_path)
-        self.width = darknet.network_width(detect.network)
-        self.height = darknet.network_height(detect.network)
+        self.width = detect.width
+        self.height = detect.height
 
     def video_capture(self, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
         
@@ -47,4 +47,4 @@ class Perceive:
             
             
         self.cap.release()
-        print("Video capture released")
+        print("Perception process has stopped")
