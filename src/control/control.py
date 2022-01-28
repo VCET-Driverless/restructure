@@ -65,7 +65,10 @@ class Control(Constants):
     def stop_car(self, setup):
         if setup.ARDUINO_CONNECTED:
                 setup.s.write(str('c').encode())
-                       
+    def send_angle(self,setup, ang):
+        if setup.ARDUINO_CONNECTED:
+                setup.s.write(str(ang).encode())
+                    
 
     def control(self, setup, path, steering, prev_time, top_view_image):
         
@@ -94,7 +97,7 @@ class Control(Constants):
             if (setup.ARDUINO_CONNECTED):
                 serial_data = st_ang
                 serial_writen_now = True
-                setup.s.write(str(serial_data).encode())
+                send_angle(self,setup,serial_data)
         else:
             serial_writen_now = False
 
