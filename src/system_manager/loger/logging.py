@@ -1,11 +1,9 @@
 
 # Library imports
 from json import dump
-import sys
-sys.path.append('../')
 
 # System imports
-from constants import Constants
+from system_manager.constants import Constants
 
 class Log(Constants):
     
