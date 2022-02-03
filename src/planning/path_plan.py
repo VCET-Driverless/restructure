@@ -4,13 +4,10 @@ import cv2
 import numpy as np
 import time
 import datetime
-import sys
-sys.path.append('../control')
-sys.path.append('../system_manager')
 
 # System imports
-from control import Control
-from constants import Constants
+from control.control import Control
+from system_manager.constants import Constants
  
 class Planning(Constants):
     
