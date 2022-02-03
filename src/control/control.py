@@ -4,12 +4,10 @@ import numpy as np
 import math
 import cv2
 import time
-import sys
-sys.path.append('../system_manager')
 
 # System imports
 from pure_pursuit import Pure_Pursuit
-from constants import Constants
+from system_manager.constants import Constants
 
 
 class Control(Constants):
@@ -63,10 +61,12 @@ class Control(Constants):
         return (90 + angle)
     
     def stop_car(self, setup):
-        if setup.ARDUINO_CONNECTED:
+        if self.ARDUINO_CONNECTED:
                 setup.s.write(str('c').encode())
-    def send_angle(self,setup, ang):
-        if setup.ARDUINO_CONNECTED:
+                
+                
+    def send_angle(self, setup, ang):
+        if self.ARDUINO_CONNECTED:
                 setup.s.write(str(ang).encode())
                     
 
@@ -94,16 +94,16 @@ class Control(Constants):
 
         if (time.time() - prev_time >= self.MS):
             prev_time = time.time()
-            if (setup.ARDUINO_CONNECTED):
+            if (self.ARDUINO_CONNECTED):
                 serial_data = st_ang
                 serial_writen_now = True
-                send_angle(self,setup,serial_data)
+                self.send_angle(setup, serial_data)
         else:
             serial_writen_now = False
 
         # Prevents Arduino buffer overlfow,
         if (steering != angle_send):
-            if (setup.ARDUINO_CONNECTED):
+            if (self.ARDUINO_CONNECTED):
                 '''s.write(str.encode(angle_a))'''
                 pass
             steering = angle_send
