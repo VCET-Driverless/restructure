@@ -4,7 +4,7 @@ import math
 import cv2
 
 # System imports
-from constants import Constants
+from system_manager.constants import Constants
 
 class Pure_Pursuit(Constants):
     
