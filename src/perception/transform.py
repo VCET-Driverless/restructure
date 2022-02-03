@@ -2,11 +2,9 @@
 # Library imports
 import cv2
 import numpy as np
-import sys
-sys.path.append('../system_manager')
 
 # System imports
-from constants import Constants
+from system_manager.constants import Constants
 
 class Transform(Constants):
 

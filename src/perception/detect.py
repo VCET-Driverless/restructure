@@ -3,11 +3,11 @@
 import time
 import cv2
 import sys
-sys.path.append('../../darknet')
+sys.path.append('../darknet')
 
 # System imports
 import darknet
-from transform import Transform
+from perception.transform import Transform
 
 class Detect:
 
