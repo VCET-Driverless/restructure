@@ -2,26 +2,26 @@
 # Library imports
 import cv2
 import sys
-sys.path.append("../../darknet")
+sys.path.append("../darknet")
 
 # System imports
 import darknet
-from transform import Transform
+from perception.transform import Transform
 
 class Perceive:
 
-    def init(self, setup, detect):
-        self.cap = cv2.VideoCapture(setup.cam_path)
+    def init(self, detect):
+        # self.cap = cv2.VideoCapture(setup.cam_path)
         self.width = detect.width
         self.height = detect.height
 
-    def video_capture(self, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
+    def video_capture(self, setup, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
         
         transform = Transform()
         
         while True:
             
-            ret, frame = self.cap.read()
+            ret, frame = setup.cap.read()
             if not ret:
                 break
             
@@ -46,5 +46,5 @@ class Perceive:
                 break
             
             
-        self.cap.release()
+        setup.cap.release()
         print("Perception process has stopped")
