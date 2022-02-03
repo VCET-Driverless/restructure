@@ -3,13 +3,11 @@
 import cv2
 import numpy as np
 import time
-import sys
-sys.path.append('../control')
-sys.path.append('../system_manager')
+import datetime
 
 # System imports
-from control import Control
-from constants import Constants
+from control.control import Control
+from system_manager.constants import Constants
  
 class Planning(Constants):
     
@@ -294,12 +292,13 @@ class Planning(Constants):
         
         return left_box[::-1], right_box[::-1], lines[::-1]
 
-    def path_plan_driver(self, setup, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_parent):
+    def path_plan_driver(self, setup, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, log_queue, p1_parent):
         
         queue_is_empty = False
         steering = '4'
         control = Control()
-        prev_send_time = time.time()
+        prev_time = time.time()
+        frame_count=0
         
         while True:
            
@@ -320,8 +319,7 @@ class Planning(Constants):
                 top_image = Planning.pathbana(left_box, right_box, lines, top_image)
                 
                 # Call control module
-                steering, prev_time, top_image= control.control(steering, prev_time, top_image)
-                
+                steering, st_ang, serial_writen_now, prev_time, top_image = control.control(setup, lines, steering, prev_time, top_image)
                 
                 # Display the output
                 if not setup.args.dont_show:
@@ -339,10 +337,22 @@ class Planning(Constants):
                                                        2*self.TOP_VIEW_IMAGE_DIMESNION[1]))
                     cv2.imshow('top_view', top_image)                
                 
+                # updating log queue
+                frame_data = {
+                        "time_stamp":datetime.datetime.now().astimezone().isoformat(),
+                        "frame_count":frame_count,
+                        "steering": int(st_ang),
+                        "serial_writen_now":serial_writen_now,
+                        # "detections": chcone.get_boxes(detections),
+                        "left_box":left_box,
+                        "right_box":right_box,
+                        "lines":lines
+                    }
+                log_queue.put(frame_data)
                 
                 # Used to break out of the loop if cv2 window is escaped
                 if cv2.waitKey(2) == 27:
-                    control.stop_car()     # Send signal to arduino to stop hardware. 
+                    control.stop_car(setup)     # Send signal to arduino to stop hardware. 
                     p1_parent.send(False)  # Act as a parent and send signal to child i.e detect
                     break
                 else:
@@ -352,6 +362,8 @@ class Planning(Constants):
                 # Check if at any point shared memory queue is empty.
                 if top_view_frame_queue.empty() or top_view_blue_coordinates_queue.empty() or top_view_orange_coordinates_queue.empty():
                     queue_is_empty = True
+                    
+                frame_count+=1
             
             else:
                 if not top_view_frame_queue.empty() and not top_view_blue_coordinates_queue.empty() and not top_view_orange_coordinates_queue.empty():
