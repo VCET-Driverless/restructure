@@ -89,8 +89,8 @@ def main():
   
 		print("Execution Succesful")
 		
-	except:
-		print("Process execution failed")
+	except Exception as err:
+		print("Process execution failed: ", err)
 	
 	
 main()
