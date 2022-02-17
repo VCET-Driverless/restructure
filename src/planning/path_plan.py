@@ -353,10 +353,10 @@ class Planning(Constants):
                 # Used to break out of the loop if cv2 window is escaped
                 if cv2.waitKey(2) == 27:
                     control.stop_car(setup)     # Send signal to arduino to stop hardware. 
-                    p1_parent.send(False)  # Act as a parent and send signal to child i.e detect
+                    p1_parent.put(False)  # Act as a parent and send signal to child i.e detect
                     break
                 else:
-                    p1_parent.send(True)
+                    p1_parent.put(True)
                     
                 
                 # Check if at any point shared memory queue is empty.

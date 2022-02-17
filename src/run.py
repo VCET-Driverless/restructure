@@ -1,6 +1,6 @@
 
 # Library imports
-from multiprocessing import Process,Queue,Pipe
+from multiprocessing import Process,Queue,SimpleQueue
 
 # System imports
 from perception.perceive import Perceive
@@ -37,8 +37,8 @@ def main():
 	log_queue = Queue()                          # used by path plan
 	
 	# Declaring Shared memory variables for terminating each process gracefully
-	p1_parent, p1_child = Pipe()  # shared by perception and plan
-	p2_parent, p2_child = Pipe()  # shared by plan and control
+	p1_queue = SimpleQueue()  # shared by perception and plan
+	p2_queue = SimpleQueue()  # shared by plan and control
 	
 	# Declare all the processes
 	process1 = Process(target=perception.video_capture,
@@ -47,7 +47,7 @@ def main():
 								frame_queue,
 								darknet_image_queue,
 								top_view_queue,
-								p2_child,
+								p2_queue,
 							))
 	
 	process2 = Process(target=detect.detect,
@@ -57,8 +57,8 @@ def main():
 								detections_queue,
                                 top_view_blue_coordinates_queue,
 								top_view_orange_coordinates_queue, 
-        						p1_child,
-              					p2_parent
+        						p1_queue,
+              					p2_queue
 							))
  
 	process3 = Process(target=path_plan.path_plan_driver,
@@ -69,7 +69,7 @@ def main():
               					top_view_blue_coordinates_queue, 
                    				top_view_orange_coordinates_queue,
 								log_queue,
-        						p1_parent
+        						p1_queue
 							))
 	
 	try:						

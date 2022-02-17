@@ -49,12 +49,13 @@ class Detect:
                 #darknet.print_detections(detections, args.ext_output)
                 darknet.free_image(darknet_image)
                 
-                if p1_child.recv() == False:
-                    p2_parent.send(False)
-                    break
-                else:
-                    p2_parent.send(True)
-                    
+                if not p1_child.empty():
+                    if p1_child.get() == False:
+                        p2_parent.put(False)
+                        break
+                    else:
+                        p2_parent.put(True)
+                        
                 # Check if queue is empty
                 if darknet_image_queue.empty():
                     queue_is_empty = True

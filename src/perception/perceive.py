@@ -42,8 +42,9 @@ class Perceive:
             darknet_image_queue.put(img_for_detect)
             top_view_frame_queue.put(top_view_img_for_draw)
             
-            if p2_child.recv() == False:
-                break
+            if not p2_child.empty():
+                if p2_child.get() == False:
+                    break
             
             
         setup.cap.release()
