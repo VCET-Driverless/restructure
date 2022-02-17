@@ -57,7 +57,7 @@ class Constants:
                         (self.TOP_VIEW_IMAGE_DIMENSION[0], 0         				    ), 
                         (self.TOP_VIEW_IMAGE_DIMENSION[0], self.TOP_VIEW_IMAGE_DIMENSION[1])]
 
-        M = cv2.getPerspectiveTransform( np.float32(self.FRONT_VIEW_POINTS), np.float32(self.TOP_VIEW_POINTS))
+        M = cv2.getPerspectiveTransform( np.float32(self.FRONT_VIEW_POINTS), np.float32(TOP_VIEW_POINTS))
 
         TOP_VIEW_CAR_COORDINATE = (self.TOP_VIEW_IMAGE_DIMENSION[0]//2, self.TOP_VIEW_IMAGE_DIMENSION[1] + self.CAR_BELOW_Y) # car coordinates on image
 

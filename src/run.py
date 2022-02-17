@@ -1,6 +1,5 @@
 
 # Library imports
-from asyncio.proactor_events import constants
 from multiprocessing import Process,Queue,Pipe
 
 # System imports

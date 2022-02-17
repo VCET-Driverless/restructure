@@ -7,7 +7,7 @@ import os
 import datetime
 
 # System imports
-from constants import Constants
+from system_manager.constants import Constants
 
 class Setup(Constants):
 
@@ -25,7 +25,7 @@ class Setup(Constants):
         self.arduino_connected = self.ARDUINO_CONNECTED
         
 
-   def set_parser(self):
+    def set_parser(self):
         
         self.parser.add_argument("--input", type=str, default=self.cam_path,
                             help="video source. If empty, uses webcam 0 stream")
@@ -59,9 +59,9 @@ class Setup(Constants):
             print("Connecting to : /dev/ttyACM0")  
 
 
-    def set_saved_video(self,cap, output_video, size):
+    def set_saved_video(self, output_video, size):
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        fps = int(self.cap.get(cv2.CAP_PROP_FPS))
         self.video = cv2.VideoWriter(output_video, fourcc, fps, size)
         return self.video
 
@@ -107,5 +107,5 @@ class Setup(Constants):
         Setup.connect_arduino(self)
         Setup.set_cam_input(self, self.args.input)                                  # Take input from parser... default set to 6.
         Setup.give_file(self)
-        Setup.set_saved_video(self,cap, self.log_file_name + ".mp4", (416,416))  
+        Setup.set_saved_video(self, self.log_file_name + ".mp4", (416,416))  
     
