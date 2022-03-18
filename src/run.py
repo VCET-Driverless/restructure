@@ -18,7 +18,7 @@ def main():
 	setup = Setup()
 	setup.setup_driver()
 	detect = Detect()
-	perception = Perceive(detect)
+	perception = Perceive()
 	path_plan = Planning()
 	control = Control()
 	log = Log()

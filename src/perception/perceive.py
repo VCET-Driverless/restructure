@@ -7,13 +7,12 @@ sys.path.append("../darknet")
 # System imports
 import darknet
 from perception.transform import Transform
+from perception.detect import Detect
 
-class Perceive:
+class Perceive(Detect):
 
-    def init(self, detect):
-        # self.cap = cv2.VideoCapture(setup.cam_path)
-        self.width = detect.width
-        self.height = detect.height
+    def init(self):
+        super().__init__()
 
     def video_capture(self, setup, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
         

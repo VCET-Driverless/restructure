@@ -37,8 +37,8 @@ class Constants:
         MAX_CONELESS_FRAMES = 30
         ARDUINO_CONNECTED = False
         RATE = 1
-        TOP_VIEW_IMAGE_DIMESNION = (416, 285) # inv map output-image size (w, h) = (x, y)
-        FRONT_VIEW_IMAGE_DIMESNION = (416, 416) # (w, h) = (x, y)
+        TOP_VIEW_IMAGE_DIMENSION = (416, 285) # inv map output-image size (w, h) = (x, y)
+        FRONT_VIEW_IMAGE_DIMENSION = (416, 416) # (w, h) = (x, y)
         FRONT_VIEW_POINTS = [(0   , 100),# camera 
                             (-600, 416),
                             (416 , 100), 
@@ -46,8 +46,8 @@ class Constants:
         
         return (
             BAUD_RATE, CAR_BELOW_Y, LIMIT_CONE, MIDPOINT_ONE_BOUNDARY,
-            P, MAX_CONELESS_FRAMES, ARDUINO_CONNECTED, RATE, TOP_VIEW_IMAGE_DIMESNION, 
-            FRONT_VIEW_IMAGE_DIMESNION, FRONT_VIEW_POINTS
+            P, MAX_CONELESS_FRAMES, ARDUINO_CONNECTED, RATE, TOP_VIEW_IMAGE_DIMENSION, 
+            FRONT_VIEW_IMAGE_DIMENSION, FRONT_VIEW_POINTS
         )
         
     def set_dependent_constants(self):

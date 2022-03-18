@@ -12,6 +12,8 @@ from system_manager.constants import Constants
 class Setup(Constants):
 
     def __init__(self):
+        
+        super().__init__()
         self.serial = serial.Serial()
         self.video = cv2.VideoWriter()
         self.parser = argparse.ArgumentParser(description="Setup Parser")
@@ -21,8 +23,6 @@ class Setup(Constants):
         self.log_file_name = ""
         self.file = None
         self.BOUNDARY_INVERT = None
-        self.baud_rate = self.BAUD_RATE
-        self.arduino_connected = self.ARDUINO_CONNECTED
         
 
     def set_parser(self):
@@ -53,9 +53,9 @@ class Setup(Constants):
 
     def connect_arduino(self):
         
-       if(self.arduino_connected):
+       if(self.ARDUINO_CONNECTED):
            
-            self.serial=serial.Serial('/dev/ttyACM0',self.baud_rate)
+            self.serial=serial.Serial('/dev/ttyACM0',self.BAUD_RATE)
             print("Connecting to : /dev/ttyACM0")  
 
 

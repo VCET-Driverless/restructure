@@ -2,11 +2,10 @@
 # Library imports
 import numpy as np
 import math
-import cv2
 import time
 
 # System imports
-from pure_pursuit import Pure_Pursuit
+from control.pure_pursuit import Pure_Pursuit
 from system_manager.constants import Constants
 
 

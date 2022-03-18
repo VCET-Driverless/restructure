@@ -19,7 +19,7 @@ class Transform(Constants):
         :returns: transformation matrix and transformed image
         """
         
-        image = cv2.warpPerspective(frame, self.M, self.TOP_VIEW_IMAGE_DIMESNION, flags=cv2.INTER_LINEAR)
+        image = cv2.warpPerspective(frame, self.M, self.TOP_VIEW_IMAGE_DIMENSION, flags=cv2.INTER_LINEAR)
         
         return image, self.M
 

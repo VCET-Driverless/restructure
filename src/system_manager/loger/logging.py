@@ -35,7 +35,7 @@ class Log(Constants):
                 "RATE" : self.RATE, 
                 "TESTER" : self.TESTER,
                 "WHICH_SYSTEM" : self.WHICH_SYSTEM,
-                "TOP_VIEW_IMAGE_DIMESNION" : self.TOP_VIEW_IMAGE_DIMESNION,
+                "TOP_VIEW_IMAGE_DIMESNION" : self.TOP_VIEW_IMAGE_DIMENSION,
                 "FRONT_VIEW_POINTS" : self.FRONT_VIEW_POINTS,
                 "Lookahead_Distance" : self.Lfc
             }
