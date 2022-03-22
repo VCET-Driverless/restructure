@@ -5,11 +5,11 @@ import time
 class Fault:
     
     def check_fault(self, setup, perception, path_plan, control):
-        Fault.check_logfile(self,setup)
-        Fault.check_serial(setup)
-        Fault.check_args(setup)
-        Fault.perception_check(setup)
-        Fault.hardware_test(setup)
+        self.check_logfile(setup)
+        self.check_serial(setup)
+        self.check_args(setup)
+        self.perception_check(setup)
+        self.hardware_test(setup)
         
     def check_logfile(self, setup):
         #It will check for existing logfile name and if so,raises an exception
@@ -38,14 +38,14 @@ class Fault:
             raise(ValueError("Invalid video path {}".format(os.path.abspath(setup.args.input))))
 
             
-    def perception_check(perception):
+    def perception_check(self, perception):
         #checks if the cam is open or not
         if not perception.cap.isOpened():
            raise Exception("Cannot access the camera") 
        
 
        
-    def hardware_test(setup):
+    def hardware_test(self, setup):
         #Hardware testing: checks the steering control 
         if setup.ARDUINO_CONNECTED is True:
             setup.serial.write(str.encode(3))

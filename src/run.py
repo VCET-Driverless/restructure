@@ -21,7 +21,7 @@ def main():
 	perception = Perceive()
 	path_plan = Planning()
 	control = Control()
-	log = Log()
+	log = Log(setup)
 	fault = Fault()
 	
 	# Raise error w.r.t hardware or software(eg: cv2 port not found, serial port not found, log file name already exists, etc)

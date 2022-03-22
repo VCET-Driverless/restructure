@@ -8,7 +8,7 @@ from system_manager.constants import Constants
 
 class Transform(Constants):
 
-    def __init__(self, setup):
+    def __init__(self):
         
         super().__init__()
 
