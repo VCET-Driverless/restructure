@@ -14,9 +14,10 @@ class Perceive(Detect):
     def init(self):
         super().__init__()
 
-    def video_capture(self, setup, frame_queue, darknet_image_queue, top_view_frame_queue, p2_child):
+    def video_capture(self, setup, frame_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_child):
         
         transform = Transform()
+        detect = Detect(setup)
         
         while True:
             
@@ -36,13 +37,17 @@ class Perceive(Detect):
             # Obtaining top view image
             top_view_img_for_draw, top_view_matrix = transform.inv_map(frame_resized)
             
+            # Detections, bounding boxes and top view coordinates
+            detections, blue, orange = detect.detect(setup, img_for_detect)
+            
             # Adding images to queue
             frame_queue.put(frame_resized)
-            darknet_image_queue.put(img_for_detect)
             top_view_frame_queue.put(top_view_img_for_draw)
+            top_view_blue_coordinates_queue.put(blue)
+            top_view_orange_coordinates_queue.put(orange)
             
-            if not p2_child.empty():
-                if p2_child.get() == False:
+            if not p1_child.empty():
+                if p1_child.get() == False:
                     break
             
             

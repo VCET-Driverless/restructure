@@ -24,47 +24,23 @@ class Detect:
         self.height = darknet.network_height(self.network)
 
 
-    def detect(self, setup, darknet_image_queue, detections_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, p1_child, p2_parent):
+    def detect(self, setup, darknet_image):
         
-        queue_is_empty = False
         transform = Transform()
         
-        while True:
-            
-            if queue_is_empty == False:
-                # Detecting objects from image
-                darknet_image = darknet_image_queue.get()
-                prev_time = time.time()
-                detections = darknet.detect_image(self.network, self.class_names, darknet_image, thresh=setup.args.thresh)
-                detections_queue.put(detections)
-                
-                # Get top view coordinates of each detected object 
-                blue, orange = transform.get_inv_coor_different_boundary(detections)
-                top_view_blue_coordinates_queue.put(blue)
-                top_view_orange_coordinates_queue.put(orange)
-                
-                # Calculating fps - speed of object detection and top view conversion
-                fps = int(1/(time.time() - prev_time))
-                #print("FPS: {}".format(fps))
-                #darknet.print_detections(detections, args.ext_output)
-                darknet.free_image(darknet_image)
-                
-                if not p1_child.empty():
-                    if p1_child.get() == False:
-                        p2_parent.put(False)
-                        break
-                    else:
-                        p2_parent.put(True)
-                        
-                # Check if queue is empty
-                if darknet_image_queue.empty():
-                    queue_is_empty = True
-            
-            else:
-                
-                if not darknet_image_queue.empty():
-                    queue_is_empty = False
-                    
-                print("Debug detections: darknet_image_queue is empty") 
+        # Detecting objects from image
+        prev_time = time.time()
+        detections = darknet.detect_image(self.network, self.class_names, darknet_image, thresh=setup.args.thresh)
         
+        # Get top view coordinates of each detected object 
+        blue, orange = transform.get_inv_coor_different_boundary(detections)
+        
+        # Calculating fps - speed of object detection and top view conversion
+        fps = int(1/(time.time() - prev_time))
+        #print("FPS: {}".format(fps))
+        #darknet.print_detections(detections, args.ext_output)
+        darknet.free_image(darknet_image)
+                    
         print("Detection process has stopped")
+        
+        return detections, blue, orange

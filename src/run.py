@@ -29,8 +29,6 @@ def main():
 	
 	# Declaring Shared memory variables for data transfer
 	frame_queue = Queue()                        # used by perception and path_plan 
-	darknet_image_queue = Queue()                # used by perception and detect
-	detections_queue = Queue()                   # use by percetion and path_plan
 	top_view_queue = Queue()                     # use by perception and path_plan
 	top_view_blue_coordinates_queue = Queue()    # used by detect and pathplan
 	top_view_orange_coordinates_queue = Queue()  # used by detect and pathplan
@@ -38,30 +36,19 @@ def main():
 	
 	# Declaring Shared memory variables for terminating each process gracefully
 	p1_queue = SimpleQueue()  # shared by perception and plan
-	p2_queue = SimpleQueue()  # shared by plan and control
 	
 	# Declare all the processes
 	process1 = Process(target=perception.video_capture,
 							args=(
 								setup, 
 								frame_queue,
-								darknet_image_queue,
 								top_view_queue,
-								p2_queue,
-							))
-	
-	process2 = Process(target=detect.detect,
-							args=(
-								setup, 
-        						darknet_image_queue, 
-								detections_queue,
-                                top_view_blue_coordinates_queue,
-								top_view_orange_coordinates_queue, 
-        						p1_queue,
-              					p2_queue
+        						top_view_blue_coordinates_queue, 
+                   				top_view_orange_coordinates_queue,
+								p1_queue,
 							))
  
-	process3 = Process(target=path_plan.path_plan_driver,
+	process2 = Process(target=path_plan.path_plan_driver,
 							args=(	
 								setup, 
 								frame_queue, 
@@ -76,10 +63,8 @@ def main():
 		# Start the processes
 		process1.start()
 		process2.start()
-		process3.start()
 
 		# Wait for terminatation of each processes
-		process3.join()
 		process2.join()
 		process1.join()
 		
