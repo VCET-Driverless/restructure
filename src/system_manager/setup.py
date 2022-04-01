@@ -31,19 +31,19 @@ class Setup(Constants):
                             help="video source. If empty, uses webcam 0 stream")
         self.parser.add_argument("--out_filename", type=str, default="",
                             help="inference video name. Not saved if empty")
-        self.parser.add_argument("--weights", default="../models/yolov4-3l-v4.weights",
+        self.parser.add_argument("--weights", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.weights",
                             help="yolo weights path")
         self.parser.add_argument("--dont_show", action='store_true',
                             help="windown inference display. For headless systems")
         self.parser.add_argument("--ext_output", action='store_true',
                             help="display bbox coordinates of detected objects")
-        self.parser.add_argument("--config_file", default="../models/yolov4-3l-v4.cfg",
+        self.parser.add_argument("--config_file", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.cfg",
                             help="path to config file")
-        self.parser.add_argument("--data_file", default="../models/yolov4-3l-v4.data",
+        self.parser.add_argument("--data_file", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.data",
                             help="path to data file")
         self.parser.add_argument("--thresh", type=float, default=.25,
                             help="remove detections with confidence below this value")
-        self.parser.add_argument("--boundary", type=int, default=1,
+        self.parser.add_argument("--boundary", type=int, default=0,
                             help="0->boundary has different color \n 1->boundary has mix colors")
         self.parser.add_argument("--controller", type=int, default=0,
                             help="0->old controller \n 1->pure pursuit controller")

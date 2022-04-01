@@ -17,8 +17,8 @@ def main():
 	# Declaring objects(instances variables) of each core class
 	setup = Setup()
 	setup.setup_driver()
-	detect = Detect()
-	perception = Perceive()
+	detect = Detect(setup)
+	perception = Perceive(setup)
 	path_plan = Planning()
 	control = Control()
 	log = Log(setup)
@@ -41,6 +41,7 @@ def main():
 	process1 = Process(target=perception.video_capture,
 							args=(
 								setup, 
+								detect,
 								frame_queue,
 								top_view_queue,
         						top_view_blue_coordinates_queue, 

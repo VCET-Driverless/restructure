@@ -22,7 +22,7 @@ class Constants:
         
     def set_dynamic_constants(self):
         
-        CAM_PATH = 6              # "http://192.168.43.156:4747/video"
+        CAM_PATH = "/home/tejas/Documents/VCET-Driverless/restructure/data/video.mp4"              # "http://192.168.43.156:4747/video"
         TESTER = "Sharvin"
         WHICH_SYSTEM = "Ubuntu"
         

@@ -299,15 +299,25 @@ class Planning(Constants):
         control = Control()
         prev_time = time.time()
         frame_count=0
-        
+        print("Path plan starts")
         while True:
-           
-            if queue_is_empty is False:
-                
-                top_image = top_view_frame_queue.get()
-                blue = top_view_blue_coordinates_queue.get()
-                orange = top_view_orange_coordinates_queue.get()
+            
+            # Check if at any point shared memory queue is empty.
+            if top_view_frame_queue.empty() or top_view_blue_coordinates_queue.empty() or top_view_orange_coordinates_queue.empty():
+                queue_is_empty = True
 
+            if queue_is_empty is False:
+                print("fetching values...")
+                print(top_view_frame_queue.qsize())
+                top_image = top_view_frame_queue.get()
+                print("top image done")
+                blue = top_view_blue_coordinates_queue.get()
+                print("blue done")
+                orange = top_view_orange_coordinates_queue.get()
+                print("orange done")
+                print(top_image)
+                print(blue)
+                print(orange)
                 # Appropriate path planning according to the kind of boundary.
                 if setup.args.boundary == 0:
                     left_box, right_box, lines = Planning.pathplan_different_boundary(blue, orange, setup.BOUNDARY_INVERT)
@@ -320,7 +330,7 @@ class Planning(Constants):
                 
                 # Call control module
                 steering, st_ang, serial_writen_now, prev_time, top_image = control.control(setup, lines, steering, prev_time, top_image)
-                
+                print("Controller done")
                 # Display the output
                 if not setup.args.dont_show:
                     image = detected_images_queue.get()
@@ -349,7 +359,7 @@ class Planning(Constants):
                         "lines":lines
                     }
                 log_queue.put(frame_data)
-                
+                print("Frame done")
                 # Used to break out of the loop if cv2 window is escaped
                 if cv2.waitKey(2) == 27:
                     control.stop_car(setup)     # Send signal to arduino to stop hardware. 
@@ -369,7 +379,7 @@ class Planning(Constants):
                 if not top_view_frame_queue.empty() and not top_view_blue_coordinates_queue.empty() and not top_view_orange_coordinates_queue.empty():
                     queue_is_empty = True
                     
-                print("Debug planning: one of the queue is empty")
+                # print("Debug planning: one of the queue is empty")
                 
         cv2.destroyAllWindows()
         print("Path plan has stopped")
