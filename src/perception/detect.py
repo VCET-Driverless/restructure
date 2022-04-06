@@ -3,7 +3,7 @@
 import time
 import cv2
 import sys
-sys.path.append("/home/tejas/Documents/VCET-Driverless/darknet")
+sys.path.append("/home/tejas/darknet")
 
 # System imports
 import darknet
@@ -13,6 +13,11 @@ class Detect:
 
     def __init__(self, setup):
         print("Darknet setup starts")
+        print(setup.args.config_file)
+        print(setup.args.data_file)
+        print(setup.args.weights)
+        # print(setup.args.config_file)
+        
         self.network, self.class_names, self.class_colors = darknet.load_network(
             setup.args.config_file,
             setup.args.data_file,
@@ -24,14 +29,25 @@ class Detect:
         self.height = darknet.network_height(self.network)
         print("Width: {}; Height: {}".format(self.width, self.height))
 
-    def detect(self, setup, transform, darknet_image):
+    def detect(self, setup, transform, frame):
         
         # transform = Transform()
-        
+        # Preparing image for detections
+        print(self.height, self.width)
+        darknet_image = darknet.make_image(self.width, self.height, 3)
+        darknet.copy_image_from_bytes(darknet_image, frame.tobytes())
+
         # Detecting objects from image
         prev_time = time.time()
         print("Detect: detections starts")
-        detections = darknet.detect_image(self.network, self.class_names, darknet_image, thresh=setup.args.thresh)
+        print(self.network)
+        print(self.class_names)
+        print(self.class_colors)
+
+        try:
+            detections = darknet.detect_image(self.network, self.class_names, darknet_image, thresh=setup.args.thresh)
+        except:
+            print("Detect: detection has failed")
         print("Detect: detections done")
         # Get top view coordinates of each detected object 
         blue, orange = transform.get_inv_coor_different_boundary(detections)

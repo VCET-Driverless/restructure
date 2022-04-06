@@ -78,7 +78,7 @@ class Setup(Constants):
             return video_path       
 
 
-    def  set_cam_input(self, path):
+    def set_cam_input(self, path):
         self.cam_path=path            # "http://192.168.43.156:4747/video"
         
     def give_file(self):

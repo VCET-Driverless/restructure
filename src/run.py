@@ -17,8 +17,9 @@ def main():
 	# Declaring objects(instances variables) of each core class
 	setup = Setup()
 	setup.setup_driver()
+	print("SETTING UP DARKNET")
 	detect = Detect(setup)
-	perception = Perceive(setup)
+	perception = Perceive(detect)
 	path_plan = Planning()
 	control = Control()
 	log = Log(setup)
