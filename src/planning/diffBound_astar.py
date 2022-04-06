@@ -3,24 +3,29 @@ import random
 import os
 import cv2
 import time
-import darknet
 import argparse
 from threading import Thread, enumerate
 from queue import Queue
-import chcone
+
 import math
 import serial
-from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
-import dataLog
 import datetime
 import cv2
 from json import dump
-from plan_astar import Planning
+# from plan_astar import Planning
 from a_star import AStarPlanner
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
 import matplotlib.pyplot as plt
+
+import sys
+sys.path.append(r"/home/tejas/Desktop/darknet")
+import darknet
+sys.path.append(r"/home/tejas/Documents/VCET-Driverless/Solecthon")
+import chcone
+from constants import ARDUINO_CONNECTED, BAUD_RATE, TOP_VIEW_IMAGE_DIMESNION, MAX_CONELESS_FRAMES, MS, P, CAM_PATH, log_constants
+import dataLog
 
 prev_time_my = time.time()
 
@@ -44,19 +49,19 @@ def parser():
                         help="video source. If empty, uses webcam 0 stream")
     parser.add_argument("--out_filename", type=str, default="",
                         help="inference video name. Not saved if empty")
-    parser.add_argument("--weights", default="yolov4-newtiny3l.weights",
+    parser.add_argument("--weights", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.weights",
                         help="yolo weights path")
     parser.add_argument("--dont_show", action='store_true',
                         help="windown inference display. For headless systems")
     parser.add_argument("--ext_output", action='store_true',
                         help="display bbox coordinates of detected objects")
-    parser.add_argument("--config_file", default="./cfg/yolov4-newtiny3l.cfg",
+    parser.add_argument("--config_file", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.cfg",
                         help="path to config file")
-    parser.add_argument("--data_file", default="./cfg/coco.data",
+    parser.add_argument("--data_file", default="/home/tejas/Documents/VCET-Driverless/models/yolov4-3l-v4.data",
                         help="path to data file")
     parser.add_argument("--thresh", type=float, default=.25,
                         help="remove detections with confidence below this value")
-    parser.add_argument("--boundary", type=int, default=1,
+    parser.add_argument("--boundary", type=int, default=2,
                         help="0->boundary has different color \n 1->boundary has mix colors")
     parser.add_argument("--controller", type=int, default=0,
                         help="0->old controller \n 1->pure pursuit controller")
@@ -333,7 +338,7 @@ def obstacle_list_update(ox,oy,gx,gy):
     return ox, oy
 
 def plotting(ox,oy,sx,sy,gx,gy,rx,ry):
-    show_animation = True
+    show_animation = False
     if show_animation:  # pragma: no cover
         plt.plot(ox, oy, ".k")
         plt.plot(sx, sy, "og")
@@ -402,13 +407,17 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     left_box, right_box, lines = chcone.pathplan(mybox, steering)
 
                     #form obstacle list
-                    left_boxes = np.array(left_boxes)
-                    right_boxes = np.array(right_boxes)
+                    left_boxes = np.array(left_box)
+                    right_boxes = np.array(right_box)
 
                     # Reading and appending coords with y > 310 - 60 in obstacles
                     if len(left_boxes) <= 0 and len(right_boxes) <= 0:
                         continue
                     else:
+                        ox=[]
+                        oy=[]
+                        sx =[] 
+                        sy=[]
                         for i in range(left_boxes.shape[0]): 
                             #  and (left_boxes[i][0] < sx - 80 or left_boxes[i][0] > sx + 80)
                             if left_boxes[i][1] < 20: 
@@ -440,7 +449,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     
                     distance = 70
                     #set goal point 2
-                    gx, gy, selected_x, selected_y, counter = get_goal_initial(sx, sy, distance,  s_arr)
+                    # gx, gy, selected_x, selected_y, counter = get_goal_initial(sx, sy, distance,  s_arr)
          
                     #set the goal point
                     gx,gy = set_goal_pt(s_arr,sx,sy)
@@ -448,7 +457,9 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     ox,oy= obstacle_list_update(ox,oy,gx,gy)
                     #Calls A Star algorithm
                     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
-                    rx, ry = a_star.planning(sx, sy, gx, gy)
+                    rx, ry,_ = a_star.planning(sx, sy, gx, gy)
+                    print("rx :",rx)
+                    print("ry :",ry)
                     plotting(ox,oy,sx,sy,gx,gy,rx,ry)
 
                     ########################################################################################
@@ -471,7 +482,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
 
                 if(args.controller==0):
                     # encode signal for steering control(old controller)   
-                    angle = chcone.angle(lines[0], lines[1])
+                    angle = chcone.angle(rx[:2],ry[0:2],False)
                     angle = math.floor(angle)
                 elif(args.controller==1):
                     # encode signal for steering control(new controller)
@@ -581,7 +592,7 @@ if __name__ == '__main__':
     width = darknet.network_width(network)
     height = darknet.network_height(network)
    # input_path = str2int(args.input)
-    cap = cv2.VideoCapture(input_path)
+    cap = cv2.VideoCapture("/home/tejas/Downloads/test5.mp4")
     try:
         Thread(target=video_capture, args=(frame_queue, darknet_image_queue)).start()
         Thread(target=inference, args=(darknet_image_queue, detections_queue, fps_queue)).start()

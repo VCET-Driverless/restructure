@@ -187,10 +187,10 @@ class Planning(Constants):
         
         return self.left_box[::-1], self.right_box[::-1], self.lines[::-1]   
 
-    def sorted_arr(self, lines,ox,oy,sx,sy):
+    def sorted_arr(self, lines, ox, oy):
         
-        self.sx = lines[0][0]
-        self.sy = lines[0][1] 
+        sx = lines[0][0]
+        sy = lines[0][1] 
          
         self.ox.append(sx - 50)
         self.oy.append(sy + 10)
@@ -320,16 +320,13 @@ class Planning(Constants):
 
             return ox, oy
 
-     def path_plan_driver(self, ox,oy,sx,sy, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, log_queue, p1_parent):
+    def path_plan_driver(self, setup, detected_images_queue, top_view_frame_queue, top_view_blue_coordinates_queue, top_view_orange_coordinates_queue, log_queue, p1_parent):
         
         queue_is_empty = False
         steering = '4'
         control = Control()
         prev_time = time.time()
         frame_count=0
-
-        grid_size = 5.0  # [m]
-        robot_radius= 1.0  # [m]  robot_radius>grid_size always!!!
 
         while True:
            
@@ -341,30 +338,31 @@ class Planning(Constants):
                 mybox= blue + orange
 
                 #recieve the midpt 
-                left_box, right_box, lines = Planning.pathplan(mybox, steering)
+                # left_box, right_box, lines = Planning.pathplan(mybox, steering)
 
-                #form obstacle list
-                left_boxes = np.array(left_boxes)
-                right_boxes = np.array(right_boxes)
+                # #form obstacle list
+                # left_boxes = np.array(left_boxes)
+                # right_boxes = np.array(right_boxes)
 
+                ########## LIMITING NUMBER OF CONES TO BE CONSIDERED FOR PLANNING
                 # Reading and appending coords with y > 310 - 60 in obstacles
-                if len(left_boxes) <= 0 and len(right_boxes) <= 0:
-                    continue
-                else:
-                    for i in range(left_boxes.shape[0]): 
-                        #  and (left_boxes[i][0] < sx - 80 or left_boxes[i][0] > sx + 80)
-                        if left_boxes[i][1] < 20: 
-                            continue
-                        else:   
-                            ox.append(left_boxes[i][0])
-                            oy.append(left_boxes[i][1])
+                # if len(left_boxes) <= 0 and len(right_boxes) <= 0:
+                #     continue
+                # else:
+                #     for i in range(left_boxes.shape[0]): 
+                #         #  and (left_boxes[i][0] < sx - 80 or left_boxes[i][0] > sx + 80)
+                #         if left_boxes[i][1] < 20: 
+                #             continue
+                #         else:   
+                #             ox.append(left_boxes[i][0])
+                #             oy.append(left_boxes[i][1])
                         
-                    for i in range(right_boxes.shape[0]):
-                        if right_boxes[i][1] < 20 : 
-                            continue
-                        else:   
-                            ox.append(right_boxes[i][0])
-                            oy.append(right_boxes[i][1])
+                #     for i in range(right_boxes.shape[0]):
+                #         if right_boxes[i][1] < 20 : 
+                #             continue
+                #         else:   
+                #             ox.append(right_boxes[i][0])
+                #             oy.append(right_boxes[i][1])
 
                     #for all cones
                     # for i in range(left_boxes.shape[0]):     #????
@@ -374,26 +372,27 @@ class Planning(Constants):
                     # for i in range(right_boxes.shape[0]):
                     #     ox.append(right_boxes[i][0])
                     #     oy.append(right_boxes[i][1])   
-                print("ox :",ox)
-                print("oy :",oy)       
+                # print("ox :",ox)
+                # print("oy :",oy)       
 
                 #sorts the array
-                s_arr,sx,sy = Planning.sorted_arr(self, lines,ox,oy,sx,sy)
+                s_arr,sx,sy = Planning.sorted_arr(self, self.TOP_VIEW_CAR_COORDINATE , ox, oy)
                 #set the goal point
                 gx,gy = Planning.set_goal_pt(self,s_arr,sx,sy)
                 #updates the obstacle list
                 ox,oy= Planning.obstacle_list_update(self,ox,oy,gx,gy)
                 #Calls A Star algorithm
-                a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
-                rx, ry = a_star.planning(sx, sy, gx, gy)
+                a_star = AStarPlanner(ox, oy)
 
+                # path = [[x1,y1],[x2,y2]] 
+                path = a_star.planning(sx, sy, gx, gy)
 
 
                 # Drawing the top view visualization and showing on cv2 window
-                top_image = Planning.pathbana(left_box, right_box, lines, top_image)
+                # top_image = Planning.pathbana(left_box, right_box, lines, top_image)
                 
                 # Call control module
-                steering, st_ang, serial_writen_now, prev_time, top_image = control.control(setup, lines, steering, prev_time, top_image)
+                steering, st_ang, serial_writen_now, prev_time, top_image = control.control(setup, path, steering, prev_time, top_image)
                 
                 # Display the output
                 if not setup.args.dont_show:

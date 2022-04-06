@@ -11,7 +11,7 @@ show_animation = True
 
 class AStarPlanner:
 
-    def __init__(self, ox, oy, resolution, rr):
+    def __init__(self, ox, oy):
         """
         Initialize grid map for a star planning
 
@@ -21,14 +21,15 @@ class AStarPlanner:
         rr: robot radius[m]
         """
 
-        self.resolution = resolution
-        self.rr = rr
+        self.resolution = 5.0               # grid size
+        self.rr = 1.0                       # Robot radius
         self.min_x, self.min_y = 0, 0
         self.max_x, self.max_y = 0, 0
         self.obstacle_map = None
         self.x_width, self.y_width = 0, 0
         self.motion = self.get_motion_model()
         self.calc_obstacle_map(ox, oy)
+
 
     class Node:
         def __init__(self, x, y, cost, parent_index):
