@@ -20,6 +20,7 @@ from a_star import AStarPlanner
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
+import matplotlib.pyplot as plt
 
 prev_time_my = time.time()
 
@@ -331,7 +332,20 @@ def obstacle_list_update(ox,oy,gx,gy):
 
     return ox, oy
 
-
+def plotting(ox,oy,sx,sy,gx,gy,rx,ry):
+    show_animation = True
+    if show_animation:  # pragma: no cover
+        plt.plot(ox, oy, ".k")
+        plt.plot(sx, sy, "og")
+        plt.plot(gx, gy, "xb")
+        plt.plot(rx, ry, "-r")
+        plt.grid(True)
+        plt.axis("equal")
+        plt.plot(gx - 50, gy - 30, ".r")
+        plt.plot(gx + 50, gy - 30, ".r")
+        plt.plot(sx - 50, sy + 10, ".r")
+        plt.plot(sx + 50, sy + 10, ".r")
+        plt.clf()
 
 # draw bound box in image
 def drawing(frame_queue, detections_queue, fps_queue):
@@ -435,6 +449,8 @@ def drawing(frame_queue, detections_queue, fps_queue):
                     #Calls A Star algorithm
                     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
                     rx, ry = a_star.planning(sx, sy, gx, gy)
+                    plotting(ox,oy,sx,sy,gx,gy,rx,ry)
+
                     ########################################################################################
 
 
